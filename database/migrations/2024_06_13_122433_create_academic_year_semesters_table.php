@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('academic_year_semesters', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->boolean('is_active')->default(false);
             $table->unsignedBigInteger('year_id');
             $table->unsignedBigInteger('semester_id');
 
