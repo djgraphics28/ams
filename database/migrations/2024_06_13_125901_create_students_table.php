@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('last_name');
             $table->string('ext_name')->nullable();
             $table->string('email')->unique();
+            $table->string('password');
+            $table->rememberToken();
             $table->string('phone')->nullable();
             $table->date('birth_date')->nullable();
             $table->enum('gender', ['male', 'female', 'other'])->nullable();

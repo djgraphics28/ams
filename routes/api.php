@@ -2,6 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\StudentAuthController;
+use App\Http\Controllers\InstructorAuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,3 +19,9 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::post('/student/login', [StudentAuthController::class, 'login']);
+Route::post('/student/logout', [StudentAuthController::class, 'logout'])->middleware('auth:sanctum');
+
+Route::post('/instructor/login', [InstructorAuthController::class, 'login']);
+Route::post('/instructor/logout', [InstructorAuthController::class, 'logout'])->middleware('auth:sanctum');
