@@ -4,9 +4,11 @@ namespace App\Filament\Resources;
 
 use Filament\Forms;
 use Filament\Tables;
+use Ramsey\Uuid\Uuid;
 use App\Models\Student;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Forms\Components\Password;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\ViewField;
 use Illuminate\Database\Eloquent\Builder;
@@ -23,14 +25,30 @@ class StudentResource extends Resource
 
     public static function form(Form $form): Form
     {
+        // Get the last student number from the database
+        $lastStudent = Student::orderBy('id', 'desc')->first();
+        if ($lastStudent) {
+            // Extract the numeric part of the student number (e.g., from "20-00001" to "00001")
+            $lastStudentNumber = intval(substr($lastStudent->student_number, 3)); // Extract numeric part and convert to integer
+        } else {
+            // If no students exist yet, start with 0
+            $lastStudentNumber = 0;
+        }
+
+        // Generate the next student number in the format "20-XXXXX"
+        $nextStudentNumber = '20-' . str_pad($lastStudentNumber + 1, 5, '0', STR_PAD_LEFT);
+
         return $form
             ->schema([
+
+                Forms\Components\FileUpload::make('image')
+                    ->image()
+                    ->columnSpanFull(),
                 Forms\Components\TextInput::make('student_number')
-                    ->required()
-                    ->maxLength(255),
+                    ->default($nextStudentNumber),  // Disable the student number field (optional)
                 // QR Code field
-                ViewField::make('qr_code')
-                ->view('components.qr-code'),
+                Forms\Components\TextInput::make('qr_code')
+                    ->default(Uuid::uuid4()->toString()),
                 Forms\Components\TextInput::make('first_name')
                     ->required()
                     ->maxLength(255),
@@ -50,10 +68,11 @@ class StudentResource extends Resource
                     ->maxLength(255),
                 Forms\Components\DatePicker::make('birth_date'),
                 Forms\Components\TextInput::make('gender'),
-                Forms\Components\FileUpload::make('image')
-                    ->image(),
                 Forms\Components\Select::make('academic_year_semester_id')
                     ->relationship('academic_year_semester', 'name'),
+                Forms\Components\TextInput::make('password')
+                    ->label('Password'),
+                // ->hidden(),
             ]);
     }
 
@@ -61,10 +80,11 @@ class StudentResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('image'),
                 Tables\Columns\TextColumn::make('student_number')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('qr_code')
-                    ->searchable(),
+                // Tables\Columns\TextColumn::make('qr_code')
+                //     ->searchable(),
                 Tables\Columns\TextColumn::make('first_name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('middle_name')
@@ -81,7 +101,6 @@ class StudentResource extends Resource
                     ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('gender'),
-                Tables\Columns\ImageColumn::make('image'),
                 Tables\Columns\TextColumn::make('academic_year_semester.name')
                     ->numeric()
                     ->sortable(),
