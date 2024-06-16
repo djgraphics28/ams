@@ -48,7 +48,7 @@ class ScheduleResource extends Resource
                     ->relationship('subject', 'name')
                     ->required(),
                 Forms\Components\Select::make('instructor_id')
-                    ->relationship('instructor', 'title'),
+                    ->relationship('instructor', 'first_name'),
             ]);
     }
 
@@ -67,7 +67,7 @@ class ScheduleResource extends Resource
                 Tables\Columns\TextColumn::make('subject.name')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('instructor.title')
+                Tables\Columns\TextColumn::make('instructor.first_name')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')

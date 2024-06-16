@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use App\Models\Subject;
+use App\Models\Attendance;
 use App\Models\Instructor;
 use App\Models\AcademicYearSemester;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -57,5 +59,15 @@ class Schedule extends Model
     public function setDaysAttribute($value)
     {
         $this->attributes['days'] = implode(',', $value);
+    }
+
+    /**
+     * Get all of the attendances for the Schedule
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function attendances(): HasMany
+    {
+        return $this->hasMany(Attendance::class, 'schedule_id', 'id');
     }
 }
