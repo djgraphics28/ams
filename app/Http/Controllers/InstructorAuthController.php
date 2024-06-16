@@ -21,6 +21,7 @@ class InstructorAuthController extends Controller
             $token = $instructor->createToken('authToken')->plainTextToken;
 
             return response()->json([
+                'instructor_id' => $instructor->id,
                 'access_token' => $token,
                 'token_type' => 'Bearer',
                 'role' => 'instructor',

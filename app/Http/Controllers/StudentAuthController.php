@@ -21,6 +21,7 @@ class StudentAuthController extends Controller
             $token = $student->createToken('authToken')->plainTextToken;
 
             return response()->json([
+                'student_id' => $student->id,
                 'access_token' => $token,
                 'token_type' => 'Bearer',
                 'role' => 'student',
