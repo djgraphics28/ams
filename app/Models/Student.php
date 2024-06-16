@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Schedule;
+use App\Models\Attendance;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\AcademicYearSemester;
@@ -26,6 +27,16 @@ class Student extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    /**
+     * Get the course that owns the Student
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function course(): BelongsTo
+    {
+        return $this->belongsTo(Course::class, 'course_id', 'id');
+    }
 
     /**
      * Get the academic_year_semester that owns the Student
@@ -59,6 +70,31 @@ class Student extends Authenticatable
         }
 
         $this->attributes['password'] = Hash::make($password);
+    }
+
+    /**
+     * Get all of the enrolls for the Student
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function enrolls(): HasMany
+    {
+        return $this->hasMany(Enroll::class, 'student_id', 'id');
+    }
+
+    public function getFullNameAttribute()
+    {
+        return $this->first_name . ' ' . $this->middle_name . ' ' . $this->last_name . ' ' . $this->ext_name;
+    }
+
+    /**
+     * Get all of the attendances for the Student
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function attendances(): HasMany
+    {
+        return $this->hasMany(Attendance::class, 'student_id', 'id');
     }
 
 }

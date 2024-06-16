@@ -49,6 +49,9 @@ class StudentResource extends Resource
                 // QR Code field
                 Forms\Components\TextInput::make('qr_code')
                     ->default(Uuid::uuid4()->toString()),
+                Forms\Components\Select::make('course_id')
+                    ->relationship('course', 'name')
+                    ->required(),
                 Forms\Components\TextInput::make('first_name')
                     ->required()
                     ->maxLength(255),

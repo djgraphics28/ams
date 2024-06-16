@@ -25,10 +25,33 @@ class EnrollResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('student_id')
-                    ->relationship('student', 'id')
+                    ->relationship('student', 'first_name') // Assuming 'full_name' is a concatenation of first and last name
+                    ->searchable() // Enable search functionality for the student dropdown
                     ->required(),
                 Forms\Components\Select::make('course_id')
                     ->relationship('course', 'name')
+                    ->required(),
+                Forms\Components\Select::make('year_level')
+                    ->options([
+                        '1' => 'First Year',
+                        '2' => 'Second Year',
+                        '3' => 'Third Year',
+                        '4' => 'Fourth Year',
+                    ])
+                    ->required(),
+                Forms\Components\Select::make('block')
+                    ->options([
+                        'A' => 'Block A',
+                        'B' => 'Block B',
+                        'C' => 'Block C',
+                        'D' => 'Block D',
+                        'E' => 'Block E',
+                        'F' => 'Block F',
+                        'G' => 'Block G',
+                        'H' => 'Block H',
+                        'I' => 'Block I',
+                        'J' => 'Block J',
+                    ])
                     ->required(),
                 Forms\Components\Select::make('academic_year_semester_id')
                     ->relationship('academic_year_semester', 'name')
@@ -40,11 +63,14 @@ class EnrollResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('student.id')
-                    ->numeric()
+                Tables\Columns\TextColumn::make('student.first_name')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('course.name')
                     ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('year_level')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('block')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('academic_year_semester.name')
                     ->numeric()

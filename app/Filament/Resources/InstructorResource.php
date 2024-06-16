@@ -77,9 +77,8 @@ class InstructorResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('image'),
                 Tables\Columns\TextColumn::make('instructor_number')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('qr_code')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('title')
                     ->searchable(),
@@ -99,7 +98,6 @@ class InstructorResource extends Resource
                     ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('gender'),
-                Tables\Columns\ImageColumn::make('image'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
