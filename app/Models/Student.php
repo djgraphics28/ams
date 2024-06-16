@@ -50,13 +50,15 @@ class Student extends Authenticatable
     // Define mutator for password attribute
     public function setPasswordAttribute($value)
     {
-        $password = '123456';
-        if ($this->password == '') {
-            $password = Str::slug($this->last_name, '');
+        if (empty($value)) {
+            // If no new password is provided, generate a password from the last name
+            $password = empty($this->password) ? Str::slug($this->last_name, '') : $this->password;
         } else {
-            $password = $this->password;
+            // Use the provided value as the new password
+            $password = $value;
         }
 
         $this->attributes['password'] = Hash::make($password);
     }
+
 }
