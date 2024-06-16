@@ -52,7 +52,7 @@ class InstructorController extends Controller
 
         $attendance = Attendance::create([
             'student_id' => $student->id,
-            'schedule_id' => $request->id,
+            'schedule_id' => $request->schedule_id,
             'scanned_by' => $instructor->id,
             'time_in' => now(),
         ]);
