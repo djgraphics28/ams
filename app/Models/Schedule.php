@@ -15,6 +15,10 @@ class Schedule extends Model
 
     protected $guarded = [];
 
+    protected $cast = [
+        'days' => 'array'
+    ];
+
     /**
      * Get the academic_year_semester that owns the Schedule
      *
@@ -43,5 +47,15 @@ class Schedule extends Model
     public function instructor(): BelongsTo
     {
         return $this->belongsTo(Instructor::class, 'instructor_id', 'id');
+    }
+
+    public function getDaysAttribute($value)
+    {
+        return explode(',', $value);
+    }
+
+    public function setDaysAttribute($value)
+    {
+        $this->attributes['days'] = implode(',', $value);
     }
 }

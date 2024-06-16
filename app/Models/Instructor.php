@@ -2,13 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Models\Schedule;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class Instructor extends Authenticatable
 {
@@ -18,7 +20,8 @@ class Instructor extends Authenticatable
     protected $guarded = [];
 
     protected $hidden = [
-        'password', 'remember_token',
+        'password',
+        'remember_token',
     ];
 
     /**
@@ -29,5 +32,17 @@ class Instructor extends Authenticatable
     public function schedules(): HasMany
     {
         return $this->hasMany(Schedule::class, 'instructor_id', 'id');
+    }
+
+    public function setPasswordAttribute($value)
+    {
+        $password = '123456';
+        if ($this->password == '') {
+            $password = Str::slug($this->last_name, '');
+        } else {
+            $password = $this->password;
+        }
+
+        $this->attributes['password'] = Hash::make($password);
     }
 }

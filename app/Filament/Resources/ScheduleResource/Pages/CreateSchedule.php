@@ -9,4 +9,6 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateSchedule extends CreateRecord
 {
     protected static string $resource = ScheduleResource::class;
+
+
 }

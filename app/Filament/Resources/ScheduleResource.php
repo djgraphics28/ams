@@ -2,16 +2,17 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ScheduleResource\Pages;
-use App\Filament\Resources\ScheduleResource\RelationManagers;
-use App\Models\Schedule;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use App\Models\Schedule;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\ScheduleResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\ScheduleResource\RelationManagers;
+use HusamTariq\FilamentTimePicker\Forms\Components\TimePickerField;
 
 class ScheduleResource extends Resource
 {
@@ -25,10 +26,20 @@ class ScheduleResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('sched_code')
                     ->required()
+                    ->columnSpanFull()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('start')
-                    ->required(),
-                Forms\Components\TextInput::make('end')
+                TimePickerField::make('start')->label('Start Time')->okLabel("Confirm")->cancelLabel("Cancel"),
+                TimePickerField::make('end')->label('End Time')->okLabel("Confirm")->cancelLabel("Cancel"),
+                Forms\Components\MultiSelect::make('days')
+                    ->options([
+                        'Mon' => 'Mon',
+                        'Tue' => 'Tue',
+                        'Wed' => 'Wed',
+                        'Thu' => 'Thu',
+                        'Fri' => 'Fri',
+                        'Sat' => 'Sat',
+                        'Sun' => 'Sun',
+                    ])
                     ->required(),
                 Forms\Components\Select::make('academic_year_semester_id')
                     ->relationship('academic_year_semester', 'name')
@@ -49,6 +60,7 @@ class ScheduleResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('start'),
                 Tables\Columns\TextColumn::make('end'),
+                Tables\Columns\TextColumn::make('days'),
                 Tables\Columns\TextColumn::make('academic_year_semester.name')
                     ->numeric()
                     ->sortable(),

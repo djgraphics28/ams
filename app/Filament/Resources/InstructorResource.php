@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Ramsey\Uuid\Uuid;
 
 class InstructorResource extends Resource
 {
@@ -21,13 +22,30 @@ class InstructorResource extends Resource
 
     public static function form(Form $form): Form
     {
+
+        // Get the last student number from the database
+        $lastInstructor = Instructor::orderBy('id', 'desc')->first();
+        if ($lastInstructor) {
+            // Extract the numeric part of the student number (e.g., from "20-00001" to "00001")
+            $lastInstructorNumber = intval(substr($lastInstructor->instructor_number, 3)); // Extract numeric part and convert to integer
+        } else {
+            // If no students exist yet, start with 0
+            $lastInstructorNumber = 0;
+        }
+
+        // Generate the next student number in the format "20-XXXXX"
+        $nextInstructorNumber = 'I-' . str_pad($lastInstructorNumber + 1, 5, '0', STR_PAD_LEFT);
+
         return $form
             ->schema([
+                Forms\Components\FileUpload::make('image')
+                    ->image()
+                    ->columnSpanFull(),
                 Forms\Components\TextInput::make('instructor_number')
-                    ->required()
-                    ->maxLength(255),
+                    ->default($nextInstructorNumber),
+                // QR Code field
                 Forms\Components\TextInput::make('qr_code')
-                    ->maxLength(255),
+                    ->default(Uuid::uuid4()->toString()),
                 Forms\Components\TextInput::make('title')
                     ->required()
                     ->maxLength(255),
@@ -50,8 +68,8 @@ class InstructorResource extends Resource
                     ->maxLength(255),
                 Forms\Components\DatePicker::make('birth_date'),
                 Forms\Components\TextInput::make('gender'),
-                Forms\Components\FileUpload::make('image')
-                    ->image(),
+                Forms\Components\TextInput::make('password')
+                    ->label('Password'),
             ]);
     }
 
