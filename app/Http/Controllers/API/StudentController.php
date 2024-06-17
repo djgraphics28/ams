@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Http\Resources\API\StudentScheduleResource;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -13,9 +14,6 @@ class StudentController extends Controller
 {
     public function getSchedules(Request $request, $id)
     {
-        // Retrieve the authenticated instructor
-        // $instructor = Auth::guard('instructor')->user();
-
         // Eager load schedules and attendances
         $data = Student::with(['schedules'])
             ->find($id);
@@ -29,7 +27,7 @@ class StudentController extends Controller
 
         // Return the data as JSON response
         return response()->json([
-            'schedules' => $data->schedules
+            'schedules' => StudentScheduleResource::collection($data->schedules)
         ]);
     }
 
