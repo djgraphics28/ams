@@ -21,10 +21,12 @@ class StudentResource extends Resource
 {
     protected static ?string $model = Student::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = 'Persons Management';
+    protected static ?string $navigationIcon = 'heroicon-o-users';
 
     public static function form(Form $form): Form
     {
+        $qr_code = Uuid::uuid4()->toString();
         // Get the last student number from the database
         $lastStudent = Student::orderBy('id', 'desc')->first();
         if ($lastStudent) {
@@ -44,11 +46,14 @@ class StudentResource extends Resource
                 Forms\Components\FileUpload::make('image')
                     ->image()
                     ->columnSpanFull(),
+                // Forms\Components\ViewField::make('qr_code')
+                // ->view('components.qr-code', compact('qr_code')),
                 Forms\Components\TextInput::make('student_number')
-                    ->default($nextStudentNumber),  // Disable the student number field (optional)
-                // QR Code field
+                    ->readOnly()
+                    ->default($nextStudentNumber),
                 Forms\Components\TextInput::make('qr_code')
-                    ->default(Uuid::uuid4()->toString()),
+                    ->default($qr_code)
+                    ->readOnly(),
                 Forms\Components\Select::make('course_id')
                     ->relationship('course', 'name')
                     ->required(),
@@ -70,7 +75,11 @@ class StudentResource extends Resource
                     ->tel()
                     ->maxLength(255),
                 Forms\Components\DatePicker::make('birth_date'),
-                Forms\Components\TextInput::make('gender'),
+                Forms\Components\Select::make('gender')
+                    ->options([
+                        'male' => 'Male',
+                        'female' => 'Female',
+                    ]),
                 Forms\Components\Select::make('academic_year_semester_id')
                     ->relationship('academic_year_semester', 'name'),
                 Forms\Components\TextInput::make('password')

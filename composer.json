@@ -6,6 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.1",
+        "eightynine/filament-reports": "^3.0",
         "filament/filament": "^3.2",
         "guzzlehttp/guzzle": "^7.2",
         "husam-tariq/filament-timepicker": "^3.0",

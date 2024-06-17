@@ -18,7 +18,8 @@ class InstructorResource extends Resource
 {
     protected static ?string $model = Instructor::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = 'Persons Management';
+    protected static ?string $navigationIcon = 'heroicon-o-users';
 
     public static function form(Form $form): Form
     {
@@ -42,9 +43,11 @@ class InstructorResource extends Resource
                     ->image()
                     ->columnSpanFull(),
                 Forms\Components\TextInput::make('instructor_number')
+                    ->readOnly()
                     ->default($nextInstructorNumber),
                 // QR Code field
                 Forms\Components\TextInput::make('qr_code')
+                    ->readOnly()
                     ->default(Uuid::uuid4()->toString()),
                 Forms\Components\TextInput::make('title')
                     ->required()
@@ -67,7 +70,11 @@ class InstructorResource extends Resource
                     ->tel()
                     ->maxLength(255),
                 Forms\Components\DatePicker::make('birth_date'),
-                Forms\Components\TextInput::make('gender'),
+                Forms\Components\Select::make('gender')
+                    ->options([
+                        'male' => 'Male',
+                        'female' => 'Female',
+                    ]),
                 Forms\Components\TextInput::make('password')
                     ->label('Password'),
             ]);
