@@ -110,4 +110,28 @@ class InstructorController extends Controller
             'data' => new InstructorProfileResource($student)
         ]);
     }
+
+    public function getScheduleStudentAttendances(Request $request, $schedId)
+    {
+        // Get the start and end date from the request, assuming they are provided as 'start_date' and 'end_date'
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        // Query attendances based on schedule_id and optional date range
+        $query = Attendance::where('schedule_id', $schedId)
+                            ->with('student');
+
+        // Apply date range filter if both start date and end date are provided
+        if ($startDate && $endDate) {
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
+
+        // Fetch the attendances
+        $attendances = $query->get();
+
+        // Return JSON response
+        return response()->json([
+            'data' => AttendanceResource::collection($attendances)
+        ]);
+    }
 }
