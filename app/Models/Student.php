@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Student extends Authenticatable
 {
@@ -46,16 +47,6 @@ class Student extends Authenticatable
     public function academic_year_semester(): BelongsTo
     {
         return $this->belongsTo(AcademicYearSemester::class, 'academic_year_semester_id', 'id')->where('is_active', true);
-    }
-
-    /**
-     * Get all of the schedules for the Instructor
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function schedules(): HasMany
-    {
-        return $this->hasMany(Schedule::class, 'student_id', 'id');
     }
 
     // Define mutator for password attribute
@@ -95,6 +86,16 @@ class Student extends Authenticatable
     public function attendances(): HasMany
     {
         return $this->hasMany(Attendance::class, 'student_id', 'id');
+    }
+
+    /**
+     * The schedules that belong to the Student
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function schedules(): BelongsToMany
+    {
+        return $this->belongsToMany(Schedule::class, 'student_schedule')->withTimestamps();
     }
 
 }

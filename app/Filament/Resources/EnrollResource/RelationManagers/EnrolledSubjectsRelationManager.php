@@ -18,9 +18,10 @@ class EnrolledSubjectsRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
+                Forms\Components\Select::make('subject_id')
+                    ->relationship('subject', 'name')
+                    ->searchable()
+                    ->required(),
             ]);
     }
 
@@ -29,8 +30,13 @@ class EnrolledSubjectsRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('name')
             ->columns([
-                Tables\Columns\TextColumn::make('name'),
+                Tables\Columns\TextColumn::make('subject.name'),
+                Tables\Columns\TextColumn::make('subject.description')
+                    ->label('Description'),
+                Tables\Columns\TextColumn::make('subject.units')
+                    ->label('Units'),
             ])
+
             ->filters([
                 //
             ])

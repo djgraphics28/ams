@@ -26,6 +26,8 @@ class ScheduleResource extends JsonResource
             'instructor_id' => $this->instructor_id,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'attendances' => $this->attendances,
+            'enrolled_students' => $this->students,
         ];
     }
 }
