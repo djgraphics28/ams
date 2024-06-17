@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Models\AcademicYearSemester;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -15,7 +16,7 @@ class StudentController extends Controller
         // $instructor = Auth::guard('instructor')->user();
 
         // Eager load schedules and attendances
-        $data = Student::with(['schedules'])
+        $data = Student::with(['schedules','attendances'])
             ->find($id);
 
         // Check if data is found
@@ -27,7 +28,23 @@ class StudentController extends Controller
 
         // Return the data as JSON response
         return response()->json([
-            'data' => ScheduleResource::collection($data->schedules)
+            'data' => $data
+        ]);
+    }
+
+    public function getSchoolYearSemester(Request $request)
+    {
+
+        $data = AcademicYearSemester::all();
+
+        if (!$data) {
+            return response()->json([
+                'message' => 'Invalid Record!',
+            ], 404);
+        }
+
+        return response()->json([
+            'school_year' => $data
         ]);
     }
 }

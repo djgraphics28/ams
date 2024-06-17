@@ -17,6 +17,8 @@ class CourseResource extends Resource
 {
     protected static ?string $model = Course::class;
 
+    protected static ?string $navigationGroup = 'Registrar Management';
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form

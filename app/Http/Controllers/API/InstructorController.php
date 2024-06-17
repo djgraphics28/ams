@@ -7,6 +7,7 @@ use App\Models\Attendance;
 use App\Models\Instructor;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\AcademicYearSemester;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\API\Instructor\ScheduleResource;
 use App\Http\Resources\API\Instructor\AttendanceResource;
@@ -75,6 +76,22 @@ class InstructorController extends Controller
                 'first_name' => $student->first_name,
                 'last_name' => $student->last_name,
             ],
+        ]);
+    }
+
+    public function getSchoolYear(Request $request)
+    {
+
+        $data = AcademicYearSemester::all();
+
+        if (!$data) {
+            return response()->json([
+                'message' => 'Invalid Record!',
+            ], 404);
+        }
+
+        return response()->json([
+            'school_year' => $data
         ]);
     }
 }

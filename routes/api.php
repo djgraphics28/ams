@@ -30,10 +30,12 @@ Route::post('/instructor/login', [InstructorAuthController::class, 'login']);
 Route::group(['prefix' => 'student'], function () {
     Route::get('/{id}/schedules', [StudentController::class, 'getSchedules'])->name('student.schedules');
     Route::post('/logout', [StudentAuthController::class, 'logout']);
+    Route::get('/schoolYearSemester', [StudentController::class, 'getSchoolYearSemester']);
 })->middleware('auth:sanctum');
 
 Route::group(['prefix' => 'instructor'], function () {
     Route::get('/{id}/schedules', [InstructorController::class, 'getSchedules'])->name('instructor.schedules');
     Route::post('/scan-qrcode', [InstructorController::class, 'markAttendance'])->name('scan-qrcode');
     Route::post('/logout', [InstructorAuthController::class, 'logout']);
+    Route::get('/schoolYearSemester', [InstructorController::class, 'getSchoolYearSemester']);
 })->middleware('auth:sanctum');
