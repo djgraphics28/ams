@@ -36,7 +36,7 @@ Route::group(['prefix' => 'student'], function () {
 
 Route::group(['prefix' => 'instructor'], function () {
     Route::get('/{id}/schedules', [InstructorController::class, 'getSchedules'])->name('instructor.schedules');
-    Route::post('/scan-qrcode', [InstructorController::class, 'markAttendance'])->name('scan-qrcode');
+    Route::post('/{id}/scan-qrcode', [InstructorController::class, 'markAttendance'])->name('scan-qrcode');
     Route::post('/logout', [InstructorAuthController::class, 'logout']);
     Route::get('/schoolYearSemester', [InstructorController::class, 'getSchoolYearSemester']);
     Route::get('/{id}/profile', [InstructorController::class, 'profile']);

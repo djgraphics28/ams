@@ -44,7 +44,7 @@ class InstructorController extends Controller
             'data' => $schedules
         ]);
     }
-    public function markAttendance(Request $request)
+    public function markAttendance(Request $request, $id)
     {
         $request->validate([
             'schedule_id' => 'required',
@@ -59,12 +59,20 @@ class InstructorController extends Controller
             ], 404);
         }
 
-        $instructor = Auth::guard('instructor')->user();
+        $check = Attendance::where('schedule_id', $request->schedule_id)
+            ->where('student_id', $student->id)
+            ->first();
+
+        if ($check) {
+            return response()->json([
+                'message' => 'Already Logged in!',
+            ], 401);
+        }
 
         $attendance = Attendance::create([
             'student_id' => $student->id,
             'schedule_id' => $request->schedule_id,
-            'scanned_by' => $instructor->id,
+            'scanned_by' => $id,
             'time_in' => now(),
         ]);
 
@@ -119,7 +127,7 @@ class InstructorController extends Controller
 
         // Query attendances based on schedule_id and optional date range
         $query = Attendance::where('schedule_id', $schedId)
-                            ->with('student');
+            ->with('student');
 
         // Apply date range filter if both start date and end date are provided
         if ($startDate && $endDate) {
