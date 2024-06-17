@@ -33,10 +33,20 @@ class StudentAuthController extends Controller
     }
 
     public function logout(Request $request, $id)
-    {
-        $student = Student::find($id);
-        $student->user()->currentAccessToken()->delete();
+{
+    $student = Student::find($id);
 
+    if (!$student) {
+        return response()->json(['message' => 'Student not found'], 404);
+    }
+
+    $token = $student->currentAccessToken();
+
+    if ($token) {
+        $token->delete();
         return response()->json(['message' => 'Logged out']);
     }
+
+    return response()->json(['message' => 'Token not found'], 400);
+}
 }
