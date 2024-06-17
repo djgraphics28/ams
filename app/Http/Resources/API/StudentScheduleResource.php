@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Resources\API\Instructor;
+namespace App\Http\Resources\API;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ScheduleResource extends JsonResource
+class StudentScheduleResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -24,10 +24,6 @@ class ScheduleResource extends JsonResource
             'subject' => $this->subject->name,
             'subject_description' => $this->subject->description,
             'instructor' => $this->instructor->full_name,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-            'attendances' => $this->attendances,
-            'enrolled_students' => $this->students,
         ];
     }
 }
