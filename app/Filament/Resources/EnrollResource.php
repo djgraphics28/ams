@@ -112,9 +112,9 @@ class EnrollResource extends Resource
     {
         return [
             'index' => Pages\ListEnrolls::route('/'),
-            'create' => Pages\CreateEnroll::route('/create'),
-            'view' => Pages\ViewEnroll::route('/{record}'),
-            'edit' => Pages\EditEnroll::route('/{record}/edit'),
+            // 'create' => Pages\CreateEnroll::route('/create'),
+            // 'view' => Pages\ViewEnroll::route('/{record}'),
+            // 'edit' => Pages\EditEnroll::route('/{record}/edit'),
         ];
     }
 }

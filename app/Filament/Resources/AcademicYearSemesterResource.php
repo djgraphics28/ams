@@ -87,7 +87,7 @@ class AcademicYearSemesterResource extends Resource
         return [
             'index' => Pages\ListAcademicYearSemesters::route('/'),
             'create' => Pages\CreateAcademicYearSemester::route('/create'),
-            'edit' => Pages\EditAcademicYearSemester::route('/{record}/edit'),
+            // 'edit' => Pages\EditAcademicYearSemester::route('/{record}/edit'),
         ];
     }
 }

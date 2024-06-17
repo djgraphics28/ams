@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Models\AcademicYearSemester;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\AcademicYearSemester;
+use App\Http\Resources\API\StudentProfileResource;
 use App\Http\Resources\API\Instructor\ScheduleResource;
 
 class StudentController extends Controller
@@ -45,6 +46,21 @@ class StudentController extends Controller
 
         return response()->json([
             'school_year' => $data
+        ]);
+    }
+
+    public function profile(Request $request, $id)
+    {
+        $student = Student::find($id);
+
+        if (!$student) {
+            return response()->json([
+                'message' => 'Student not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'data' => new StudentProfileResource($student)
         ]);
     }
 }
