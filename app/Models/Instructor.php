@@ -45,4 +45,9 @@ class Instructor extends Authenticatable
 
         $this->attributes['password'] = Hash::make($password);
     }
+
+    public function getFullNameAttribute()
+    {
+        return $this->title . ' ' .$this->first_name . ' ' . $this->last_name . ' ' . $this->ext_name;
+    }
 }

@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\AcademicYearSemester;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\API\InstructorProfileResource;
 use App\Http\Resources\API\Instructor\ScheduleResource;
 use App\Http\Resources\API\Instructor\AttendanceResource;
 
@@ -92,6 +93,21 @@ class InstructorController extends Controller
 
         return response()->json([
             'school_year' => $data
+        ]);
+    }
+
+    public function profile(Request $request, $id)
+    {
+        $student = Instructor::find($id);
+
+        if (!$student) {
+            return response()->json([
+                'message' => 'Instructor not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'data' => new InstructorProfileResource($student)
         ]);
     }
 }

@@ -39,4 +39,5 @@ Route::group(['prefix' => 'instructor'], function () {
     Route::post('/scan-qrcode', [InstructorController::class, 'markAttendance'])->name('scan-qrcode');
     Route::post('/logout', [InstructorAuthController::class, 'logout']);
     Route::get('/schoolYearSemester', [InstructorController::class, 'getSchoolYearSemester']);
+    Route::get('/{id}/profile', [InstructorController::class, 'profile']);
 })->middleware('auth:sanctum');
