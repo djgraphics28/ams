@@ -17,7 +17,7 @@ class StudentController extends Controller
         // $instructor = Auth::guard('instructor')->user();
 
         // Eager load schedules and attendances
-        $data = Student::with(['schedules','attendances'])
+        $data = Student::with(['schedules'])
             ->find($id);
 
         // Check if data is found
@@ -29,7 +29,7 @@ class StudentController extends Controller
 
         // Return the data as JSON response
         return response()->json([
-            'data' => $data
+            'schedules' => $data->schedules
         ]);
     }
 
