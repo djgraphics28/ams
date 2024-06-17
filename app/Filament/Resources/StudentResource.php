@@ -16,6 +16,7 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Filament\Resources\StudentResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\StudentResource\RelationManagers;
+use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class StudentResource extends Resource
 {
@@ -131,6 +132,7 @@ class StudentResource extends Resource
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
+                DateRangeFilter::make('created_at')->defaultToday(),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

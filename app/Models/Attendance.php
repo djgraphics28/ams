@@ -12,6 +12,8 @@ class Attendance extends Model
 {
     use HasFactory;
 
+    protected $guarded = [];
+
     /**
      * Get the schedule that owns the Attendance
      *
