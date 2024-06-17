@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -31,9 +32,10 @@ class StudentAuthController extends Controller
         return response()->json(['message' => 'Invalid credentials'], 401);
     }
 
-    public function logout(Request $request)
+    public function logout(Request $request, $id)
     {
-        $request->user()->currentAccessToken()->delete();
+        $student = Student::find($id);
+        $student->user()->currentAccessToken()->delete();
 
         return response()->json(['message' => 'Logged out']);
     }
