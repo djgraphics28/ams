@@ -75,7 +75,7 @@ class Student extends Authenticatable
 
     public function getFullNameAttribute()
     {
-        return $this->first_name . ' ' . $this->middle_name . ' ' . $this->last_name . ' ' . $this->ext_name;
+        return $this->first_name . ' ' . $this->last_name . ' ' . $this->ext_name;
     }
 
     /**
