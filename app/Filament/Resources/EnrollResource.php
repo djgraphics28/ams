@@ -13,12 +13,15 @@ use App\Filament\Resources\EnrollResource;
 use App\Filament\Resources\EnrollResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\EnrollResource\RelationManagers;
+use App\Filament\Resources\EnrollResource\RelationManagers\EnrolledSubjectsRelationManager;
 
 class EnrollResource extends Resource
 {
     protected static ?string $model = Enroll::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    protected static ?string $navigationLabel = 'Enrollment';
 
     public static function form(Form $form): Form
     {
@@ -101,7 +104,7 @@ class EnrollResource extends Resource
     public static function getRelations(): array
     {
         return [
-            // EnrollResource::getRelations()
+            RelationManagers\EnrolledSubjectsRelationManager::class,
         ];
     }
 

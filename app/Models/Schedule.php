@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Schedule extends Model
 {
@@ -69,5 +70,15 @@ class Schedule extends Model
     public function attendances(): HasMany
     {
         return $this->hasMany(Attendance::class, 'schedule_id', 'id');
+    }
+
+    /**
+     * The students that belong to the Schedule
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function students(): BelongsToMany
+    {
+        return $this->belongsToMany(Student::class, 'student_schedule')->withTimestamps();
     }
 }

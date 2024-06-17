@@ -16,11 +16,13 @@ class AcademicYearSemesterSeeder extends Seeder
      */
     public function run(): void
     {
-        $years = range(2024, 2034);
+        $startYear = 2024;
+        $endYear = 2034;
 
-        foreach ($years as $year) {
+        for ($year = $startYear; $year < $endYear; $year++) {
+            $nextYear = $year + 1;
             Year::create([
-                "name" => $year,
+                "name" => "$year-$nextYear",
             ]);
         }
 
@@ -38,7 +40,7 @@ class AcademicYearSemesterSeeder extends Seeder
         foreach ($years as $year) {
             foreach ($semesters as $semester) {
                 AcademicYearSemester::create([
-                    'name' => $year->name." - ".$semester->name,
+                    'name' => $year->name . " - " . $semester->name,
                     'year_id' => $year->id,
                     'semester_id' => $semester->id,
                 ]);

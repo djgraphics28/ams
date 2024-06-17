@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\API\Instructor\ScheduleResource;
+use App\Http\Resources\API\Instructor\AttendanceResource;
 
 class InstructorController extends Controller
 {
@@ -17,8 +18,13 @@ class InstructorController extends Controller
         // Retrieve the authenticated instructor
         // $instructor = Auth::guard('instructor')->user();
 
+        $date = $request->date;
+
         // Eager load schedules and attendances
-        $data = Instructor::with(['schedules'])
+        $data = Instructor::with([
+            'schedules',
+            'schedules.students'
+        ])
             ->find($id);
 
         // Check if data is found
@@ -28,9 +34,12 @@ class InstructorController extends Controller
             ], 404);
         }
 
+        // Transform schedules data using ScheduleResource
+        $schedules = ScheduleResource::collection($data->schedules);
+
         // Return the data as JSON response
         return response()->json([
-            'data' => ScheduleResource::collection($data->schedules)
+            'data' => $schedules
         ]);
     }
     public function markAttendance(Request $request)
