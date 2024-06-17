@@ -59,8 +59,11 @@ class InstructorController extends Controller
             ], 404);
         }
 
+        $currentDate = now()->toDateString();
+
         $check = Attendance::where('schedule_id', $request->schedule_id)
             ->where('student_id', $student->id)
+            ->whereDate('time_in', $currentDate)
             ->first();
 
         if ($check) {
