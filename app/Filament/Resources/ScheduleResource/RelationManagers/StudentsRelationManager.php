@@ -35,6 +35,7 @@ class StudentsRelationManager extends RelationManager
             ->columns([
                 Tables\Columns\ImageColumn::make('image'),
                 Tables\Columns\TextColumn::make('student_number'),
+                Tables\Columns\TextColumn::make('course.name'),
                 Tables\Columns\TextColumn::make('first_name'),
                 Tables\Columns\TextColumn::make('last_name'),
             ])
