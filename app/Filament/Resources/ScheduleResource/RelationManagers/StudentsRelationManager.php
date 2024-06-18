@@ -74,6 +74,8 @@ class StudentsRelationManager extends RelationManager
         // Query students enrolled in the specific subject
         return Student::whereHas('enrolls.enrolled_subjects', function ($query) use ($subjectId) {
             $query->where('subject_id', $subjectId);
+        })->whereDoesntHave('schedules', function ($query) use ($scheduleId) {
+            $query->where('schedule_id', $scheduleId);
         })->pluck('first_name', 'id');
     }
 
