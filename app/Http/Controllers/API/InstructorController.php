@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\API;
 
 use App\Models\Student;
+use App\Models\Schedule;
 use App\Models\Attendance;
 use App\Models\Instructor;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\AcademicYearSemester;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\API\ScheduleInfoResource;
 use App\Http\Resources\API\InstructorProfileResource;
 use App\Http\Resources\API\Instructor\ScheduleResource;
 use App\Http\Resources\API\Instructor\AttendanceResource;
@@ -165,6 +167,21 @@ class InstructorController extends Controller
         // Return JSON response
         return response()->json([
             'data' => AttendanceResource::collection($attendances)
+        ]);
+    }
+
+    public function getScheduleInfo($schedId)
+    {
+        $schedule = Schedule::find($schedId);
+
+        if (!$schedule) {
+            return response()->json([
+                'message' => 'Schedule not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'data' => new ScheduleInfoResource($schedule)
         ]);
     }
 }
