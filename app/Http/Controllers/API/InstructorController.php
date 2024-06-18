@@ -91,7 +91,7 @@ class InstructorController extends Controller
                     'first_name' => $student->first_name,
                     'last_name' => $student->last_name,
                 ],
-            ], 401);
+            ], 409);
         }
 
         $attendance = Attendance::create([
