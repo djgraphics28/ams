@@ -67,6 +67,13 @@ class InstructorController extends Controller
             ], 404);
         }
 
+        //check if the students is enrolled to this schedule
+        if($student->schedules()->where('schedule_id', $request->schedule_id)->doesntExist()){
+            return response()->json([
+                'message' => 'Student is not enrolled to this schedule!',
+            ], 404);
+        }
+
         $currentDate = now()->toDateString();
 
         $check = Attendance::where('schedule_id', $request->schedule_id)
