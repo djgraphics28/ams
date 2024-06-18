@@ -83,7 +83,14 @@ class InstructorController extends Controller
 
         if ($check) {
             return response()->json([
-                'message' => 'Already Logged in!',
+                'message' => 'Attendance marked successfully',
+                'attendance' => $check,
+                'student' => [
+                    'student_number' => $student->student_number,
+                    'image' => $student->image,
+                    'first_name' => $student->first_name,
+                    'last_name' => $student->last_name,
+                ],
             ], 401);
         }
 
