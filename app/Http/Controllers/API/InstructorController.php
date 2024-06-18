@@ -91,7 +91,7 @@ class InstructorController extends Controller
             'student_id' => $student->id,
             'schedule_id' => $request->schedule_id,
             'scanned_by' => $id,
-            'time_in' => now(),
+            'time_in' => now()->timezone('Asia/Manila')->format('Y-m-d H:i:s'),
         ]);
 
         return response()->json([
