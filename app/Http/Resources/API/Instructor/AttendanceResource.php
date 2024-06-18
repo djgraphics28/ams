@@ -14,6 +14,9 @@ class AttendanceResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        // Convert time_in to Asia/Manila timezone
+        $time_in = $this->time_in ? $this->time_in->timezone('Asia/Manila')->format('Y-m-d H:i:s') : null;
+
         return [
             'id' => $this->id,
             'time_in' => $this->time_in,
