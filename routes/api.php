@@ -40,5 +40,6 @@ Route::group(['prefix' => 'instructor'], function () {
     Route::post('/logout', [InstructorAuthController::class, 'logout']);
     Route::get('/schoolYearSemester', [InstructorController::class, 'getSchoolYearSemester']);
     Route::get('/{id}/profile', [InstructorController::class, 'profile']);
+    Route::get('/schedule/{id}', [InstructorController::class, 'getScheduleInfo']);
     Route::get('/schedule/{id}/attendances', [InstructorController::class, 'getScheduleStudentAttendances']);
 })->middleware('auth:sanctum');
