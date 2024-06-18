@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources\ScheduleResource\RelationManagers;
 
+use Illuminate\Support\Facades\DB;
+use App\Models\EnrollSubject;
+use App\Models\Student;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -14,10 +17,13 @@ class StudentsRelationManager extends RelationManager
 
     public function form(Form $form): Form
     {
+        $scheduleId = $this->ownerRecord->id; // Assuming you have access to the owner record which is the Schedule
+
         return $form
             ->schema([
                 Forms\Components\Select::make('student_id')
-                    ->relationship('students', 'first_name')
+                    ->label('Student')
+                    ->options($this->getFilteredStudents($scheduleId))
                     ->required(),
             ]);
     }
@@ -36,7 +42,17 @@ class StudentsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\AttachAction::make(),
+                Tables\Actions\CreateAction::make()
+                    ->form($this->getFormSchema()) // Provide the form schema directly
+                    ->mutateFormDataUsing(function (array $data) {
+                        // Adding the schedule_id to the data array
+                        $data['schedule_id'] = $this->ownerRecord->id;
+                        return $data;
+                    })
+                    ->action(function (array $data) {
+                        // Creating a new entry in the student_schedule table using query builder
+                        DB::table('student_schedule')->insert($data);
+                    }),
             ])
             ->actions([
                 // Tables\Actions\EditAction::make(),
@@ -47,5 +63,28 @@ class StudentsRelationManager extends RelationManager
                     // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    private function getFilteredStudents($scheduleId)
+    {
+        // Get the subject ID from the schedule
+        $subjectId = $this->ownerRecord->subject_id;
+
+        // Query students enrolled in the specific subject
+        return Student::whereHas('enrolls.enrolled_subjects', function ($query) use ($subjectId) {
+            $query->where('subject_id', $subjectId);
+        })->pluck('first_name', 'id');
+    }
+
+    protected function getFormSchema(): array
+    {
+        $scheduleId = $this->ownerRecord->id; // Assuming you have access to the owner record which is the Schedule
+
+        return [
+            Forms\Components\Select::make('student_id')
+                ->label('Student')
+                ->options($this->getFilteredStudents($scheduleId))
+                ->required(),
+        ];
     }
 }
