@@ -48,7 +48,15 @@ class InstructorController extends Controller
     {
         $request->validate([
             'schedule_id' => 'required',
-            'qr_code' => 'required|exists:students,qr_code',
+            'qr_code' => [
+                'required',
+                'exists:students,qr_code',
+                function ($attribute, $value, $fail) {
+                    if (strpos($value, 'http://') === 0) {
+                        $fail('The '.$attribute.' must not start with http://.');
+                    }
+                },
+            ],
         ]);
 
         $student = Student::where('qr_code', $request->qr_code)->first();
