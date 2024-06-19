@@ -60,8 +60,8 @@ class InstructorResource extends Resource
                 Forms\Components\TextInput::make('last_name')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('ext_name')
-                    ->maxLength(255),
+                // Forms\Components\TextInput::make('ext_name')
+                //     ->maxLength(255),
                 Forms\Components\TextInput::make('email')
                     ->email()
                     ->required()
@@ -95,8 +95,8 @@ class InstructorResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('last_name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('ext_name')
-                    ->searchable(),
+                // Tables\Columns\TextColumn::make('ext_name')
+                //     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('phone')
