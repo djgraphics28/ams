@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers\API;
 
+use Carbon\Carbon;
 use App\Models\Student;
 use App\Models\Schedule;
 use App\Models\Attendance;
 use App\Models\Instructor;
+use Vonage\SMS\Message\SMS;
 use Illuminate\Http\Request;
+use App\Models\MessageTemplate;
+use Vonage\Laravel\Facade\Vonage;
 use App\Http\Controllers\Controller;
 use App\Models\AcademicYearSemester;
 use Illuminate\Support\Facades\Auth;
@@ -54,7 +58,7 @@ class InstructorController extends Controller
                 'exists:students,qr_code',
                 function ($attribute, $value, $fail) {
                     if (strpos($value, 'http://') === 0) {
-                        $fail('The '.$attribute.' must not start with http://.');
+                        $fail('The ' . $attribute . ' must not start with http://.');
                     }
                 },
             ],
@@ -69,7 +73,7 @@ class InstructorController extends Controller
         }
 
         //check if the students is enrolled to this schedule
-        if($student->schedules()->where('schedule_id', $request->schedule_id)->doesntExist()){
+        if ($student->schedules()->where('schedule_id', $request->schedule_id)->doesntExist()) {
             return response()->json([
                 'message' => 'Student is not enrolled to this schedule!',
             ], 404);
@@ -95,16 +99,55 @@ class InstructorController extends Controller
             ], 409);
         }
 
-        $attendance = Attendance::create([
-            'student_id' => $student->id,
-            'schedule_id' => $request->schedule_id,
-            'scanned_by' => $id,
-            'time_in' => now()->timezone('Asia/Manila')->format('Y-m-d H:i:s'),
-        ]);
 
-        // check if there is guardian details
-        if(!is_null($student->parent_name) && (!is_null($student->parent_number))){
-            // send notification to guardian
+        $late = false;
+
+        // get start time
+        $schedule = Schedule::find($request->schedule_id);
+
+        // Set initial late flag to false
+        $late = false;
+
+        // Retrieve the schedule based on the provided schedule_id
+        $schedule = Schedule::find($request->schedule_id);
+
+        if ($schedule) {
+            // Parse the start time and current time into Carbon instances
+            $start_time = Carbon::parse($schedule->start_time, 'Asia/Manila');
+            $time_in = Carbon::now('Asia/Manila');
+
+            // Check if time_in is later than start_time
+            if ($time_in->greaterThan($start_time)) {
+                $late = true;
+            }
+
+            // Create a new Attendance record
+            $attendance = Attendance::create([
+                'student_id' => $student->id,
+                'schedule_id' => $request->schedule_id,
+                'scanned_by' => $id,
+                'is_late' => $late,
+                'time_in' => $time_in->format('Y-m-d H:i:s'),
+            ]);
+
+            // Check if there are guardian details
+            if (!is_null($student->parent_name) && !is_null($student->parent_number)) {
+                // Fetch the message template
+                $messageTemplate = MessageTemplate::where('type', 'sms')->where('level_of_offense','1st offense')->first();
+
+                if ($messageTemplate) {
+                    // Replace placeholders with actual values
+                    $message = str_replace(
+                        ['[parentName]', '[studentName]', '[instructorName]'],
+                        [$student->parent_name, $student->full_name, $schedule->instructor->full_name],
+                        $messageTemplate->template
+                    );
+
+                    // Send notification to guardian
+                    $text = new SMS($student->parent_number, '+639273397377', $message);
+                    Vonage::sms()->send($text);
+                }
+            }
         }
 
         return response()->json([
