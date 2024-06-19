@@ -11,6 +11,7 @@ use Filament\Tables\Table;
 use Forms\Components\Password;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\ViewField;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Infolists\Components\Section;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
@@ -149,7 +150,14 @@ class StudentResource extends Resource
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
-                DateRangeFilter::make('created_at')->defaultToday(),
+                SelectFilter::make('year')
+                    ->relationship('year', 'name'),
+                SelectFilter::make('semester')
+                    ->relationship('semester', 'name'),
+                SelectFilter::make('course')
+                    ->relationship('course', 'name'),
+                DateRangeFilter::make('created_at'),
+
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
