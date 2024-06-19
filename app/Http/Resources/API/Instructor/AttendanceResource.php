@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\API\Instructor;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -14,8 +15,11 @@ class AttendanceResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        // Convert time_in to Asia/Manila timezone
-        $time_in = $this->time_in ? $this->time_in->timezone('Asia/Manila')->format('Y-m-d H:i:s') : null;
+        // Check if time_in is not null and is a valid date
+        $time_in = null;
+        if ($this->time_in) {
+            $time_in = Carbon::parse($this->time_in)->timezone('Asia/Manila')->format('Y-m-d H:i:s');
+        }
 
         return [
             'id' => $this->id,
