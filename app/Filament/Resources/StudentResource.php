@@ -81,8 +81,12 @@ class StudentResource extends Resource
                         'male' => 'Male',
                         'female' => 'Female',
                     ]),
-                Forms\Components\Select::make('academic_year_semester_id')
-                    ->relationship('academic_year_semester', 'name'),
+                Forms\Components\Select::make('year_id')
+                    ->relationship('year', 'name')
+                    ->required(),
+                Forms\Components\Select::make('semester_id')
+                    ->relationship('semester', 'name')
+                    ->required(),
                 Forms\Components\TextInput::make('password')
                     ->label('Password'),
                 // ->hidden(),

@@ -8,6 +8,7 @@ use App\Models\Schedule;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\ScheduleResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -43,8 +44,11 @@ class ScheduleResource extends Resource
                         'Sun' => 'Sun',
                     ])
                     ->required(),
-                Forms\Components\Select::make('academic_year_semester_id')
-                    ->relationship('academic_year_semester', 'name')
+                Forms\Components\Select::make('year_id')
+                    ->relationship('year', 'name')
+                    ->required(),
+                Forms\Components\Select::make('semester_id')
+                    ->relationship('semester', 'name')
                     ->required(),
                 Forms\Components\Select::make('subject_id')
                     ->relationship('subject', 'name')
@@ -63,7 +67,10 @@ class ScheduleResource extends Resource
                 Tables\Columns\TextColumn::make('start'),
                 Tables\Columns\TextColumn::make('end'),
                 Tables\Columns\TextColumn::make('days'),
-                Tables\Columns\TextColumn::make('academic_year_semester.name')
+                Tables\Columns\TextColumn::make('year.name')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('semester.name')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('subject.name')
@@ -82,7 +89,14 @@ class ScheduleResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('year')
+                    ->relationship('year', 'name'),
+                SelectFilter::make('semester')
+                    ->relationship('semester', 'name'),
+                SelectFilter::make('subject')
+                    ->relationship('subject', 'name'),
+                SelectFilter::make('instructor')
+                    ->relationship('instructor', 'first_name')
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

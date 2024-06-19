@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\AcademicYearSemesterResource\Pages;
-use App\Filament\Resources\AcademicYearSemesterResource\RelationManagers;
-use App\Models\AcademicYearSemester;
+use App\Filament\Resources\YearResource\Pages;
+use App\Filament\Resources\YearResource\RelationManagers;
+use App\Models\Year;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,11 +13,13 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class AcademicYearSemesterResource extends Resource
+class YearResource extends Resource
 {
-    protected static ?string $model = AcademicYearSemester::class;
+    protected static ?string $model = Year::class;
 
     protected static ?string $navigationGroup = 'Registrar Management';
+
+    protected static ?string $navigationLabel = 'School Year';
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -26,16 +28,9 @@ class AcademicYearSemesterResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
+                    ->label('School Year')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\Toggle::make('is_active')
-                    ->required(),
-                // Forms\Components\TextInput::make('year_id')
-                //     ->required()
-                //     ->numeric(),
-                // Forms\Components\TextInput::make('semester_id')
-                //     ->required()
-                //     ->numeric(),
             ]);
     }
 
@@ -45,14 +40,6 @@ class AcademicYearSemesterResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\IconColumn::make('is_active')
-                    ->boolean(),
-                // Tables\Columns\TextColumn::make('year_id')
-                //     ->numeric()
-                //     ->sortable(),
-                // Tables\Columns\TextColumn::make('semester_id')
-                //     ->numeric()
-                //     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -67,6 +54,7 @@ class AcademicYearSemesterResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -75,19 +63,10 @@ class AcademicYearSemesterResource extends Resource
             ]);
     }
 
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
-
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListAcademicYearSemesters::route('/'),
-            'create' => Pages\CreateAcademicYearSemester::route('/create'),
-            // 'edit' => Pages\EditAcademicYearSemester::route('/{record}/edit'),
+            'index' => Pages\ManageYears::route('/'),
         ];
     }
 }

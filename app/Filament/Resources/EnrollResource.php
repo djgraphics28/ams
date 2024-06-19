@@ -8,6 +8,7 @@ use App\Models\Enroll;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\EnrollResource;
 use App\Filament\Resources\EnrollResource\Pages;
@@ -21,7 +22,7 @@ class EnrollResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $navigationLabel = 'Enrollment';
+    protected static ?string $navigationLabel = 'Enrolled Students';
 
     public static function form(Form $form): Form
     {
@@ -56,8 +57,11 @@ class EnrollResource extends Resource
                         'J' => 'Block J',
                     ])
                     ->required(),
-                Forms\Components\Select::make('academic_year_semester_id')
-                    ->relationship('academic_year_semester', 'name')
+                Forms\Components\Select::make('year_id')
+                    ->relationship('year', 'name')
+                    ->required(),
+                Forms\Components\Select::make('semester_id')
+                    ->relationship('semester', 'name')
                     ->required(),
             ]);
     }
@@ -75,7 +79,10 @@ class EnrollResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('block')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('academic_year_semester.name')
+                Tables\Columns\TextColumn::make('year.name')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('semester.name')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
@@ -88,7 +95,10 @@ class EnrollResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('year')
+                    ->relationship('year', 'name'),
+                SelectFilter::make('semester')
+                    ->relationship('semester', 'name')
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

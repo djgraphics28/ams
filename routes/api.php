@@ -42,4 +42,5 @@ Route::group(['prefix' => 'instructor'], function () {
     Route::get('/{id}/profile', [InstructorController::class, 'profile']);
     Route::get('/schedule/{id}', [InstructorController::class, 'getScheduleInfo']);
     Route::get('/schedule/{id}/attendances', [InstructorController::class, 'getScheduleStudentAttendances']);
+    Route::post('/schedule/{id}/register', [InstructorController::class, 'registerStudentToSchedule']);
 })->middleware('auth:sanctum');

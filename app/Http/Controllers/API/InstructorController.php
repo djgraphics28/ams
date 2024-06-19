@@ -184,4 +184,41 @@ class InstructorController extends Controller
             'data' => new ScheduleInfoResource($schedule)
         ]);
     }
+
+    public function registerStudentToSchedule(Request $request, $schedId)
+    {
+        $request->validate([
+            'student_id' => 'required|exists:students,id',
+        ]);
+
+        $student = Student::find($request->student_id);
+
+        if (!$student) {
+            return response()->json([
+                'message' => 'Student not found',
+            ], 404);
+        }
+
+        $schedule = Schedule::find($schedId);
+
+        if (!$schedule) {
+            return response()->json([
+                'message' => 'Schedule not found',
+            ], 404);
+        }
+
+        // Check if the student is already enrolled in the schedule
+        if ($student->schedules()->where('schedule_id', $schedId)->exists()) {
+            return response()->json([
+                'message' => 'Student is already enrolled in this schedule',
+            ], 409);
+        }
+
+        // Enroll the student to the schedule
+        $student->schedules()->attach($schedId);
+
+        return response()->json([
+            'message' => 'Student enrolled to schedule successfully',
+        ]);
+    }
 }
