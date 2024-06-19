@@ -67,6 +67,8 @@ class AttendanceResource extends Resource
             ])
             ->filters([
                 DateRangeFilter::make('created_at')->defaultToday(),
+                SelectFilter::make('schedule')
+                    ->relationship('schedule', 'sched_code'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

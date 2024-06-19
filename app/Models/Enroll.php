@@ -55,4 +55,24 @@ class Enroll extends Model
     {
         return $this->belongsTo(Course::class, 'course_id', 'id');
     }
+
+    /**
+     * Get the semester that owns the Enroll
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function semester(): BelongsTo
+    {
+        return $this->belongsTo(Semester::class, 'semester_id', 'id');
+    }
+
+    /**
+     * Get the year that owns the Enroll
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function year(): BelongsTo
+    {
+        return $this->belongsTo(Year::class, 'year_id', 'id');
+    }
 }
