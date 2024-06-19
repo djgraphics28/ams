@@ -98,7 +98,27 @@ class EnrollResource extends Resource
                 SelectFilter::make('year')
                     ->relationship('year', 'name'),
                 SelectFilter::make('semester')
-                    ->relationship('semester', 'name')
+                    ->relationship('semester', 'name'),
+                SelectFilter::make('year_level')
+                    ->options([
+                        '1' => 'First Year',
+                        '2' => 'Second Year',
+                        '3' => 'Third Year',
+                        '4' => 'Fourth Year',
+                    ]),
+                SelectFilter::make('block')
+                    ->options([
+                        'A' => 'Block A',
+                        'B' => 'Block B',
+                        'C' => 'Block C',
+                        'D' => 'Block D',
+                        'E' => 'Block E',
+                        'F' => 'Block F',
+                        'G' => 'Block G',
+                        'H' => 'Block H',
+                        'I' => 'Block I',
+                        'J' => 'Block J',
+                    ])
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
