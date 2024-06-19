@@ -12,6 +12,7 @@ use Forms\Components\Password;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\ViewField;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Infolists\Components\Section;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Filament\Resources\StudentResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -90,6 +91,18 @@ class StudentResource extends Resource
                 Forms\Components\TextInput::make('password')
                     ->label('Password'),
                 // ->hidden(),
+
+                Forms\Components\Section::make('Guardian Details')
+                    ->schema([
+                        Forms\Components\TextInput::make('parent_name')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('parent_number')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('parent_email')
+                            ->maxLength(255),
+                    ]),
             ]);
     }
 
