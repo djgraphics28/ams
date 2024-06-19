@@ -47,14 +47,16 @@ class AttendanceResource extends Resource
                 Tables\Columns\TextColumn::make('time_in')
                     ->dateTime()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('instructor.full_name')
-                    ->numeric()
+                Tables\Columns\TextColumn::make('student.student_number')
+                    ->label('Student ID')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('student.full_name')
-                    ->numeric()
+                    ->label('Student Name')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('instructor.full_name')
+                    ->label('Scanned by')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('schedule.sched_code')
-                    ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

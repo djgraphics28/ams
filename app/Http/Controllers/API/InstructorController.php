@@ -102,6 +102,11 @@ class InstructorController extends Controller
             'time_in' => now()->timezone('Asia/Manila')->format('Y-m-d H:i:s'),
         ]);
 
+        // check if there is guardian details
+        if(!is_null($student->parent_name) && (!is_null($student->parent_number))){
+            // send notification to guardian
+        }
+
         return response()->json([
             'message' => 'Attendance marked successfully',
             'attendance' => $attendance,
