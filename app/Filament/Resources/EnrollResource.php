@@ -10,7 +10,6 @@ use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\EnrollResource;
 use App\Filament\Resources\EnrollResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\EnrollResource\RelationManagers;
@@ -70,14 +69,20 @@ class EnrollResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('student.first_name')
+                Tables\Columns\TextColumn::make('student.student_number')
+                    ->label('Student ID')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('student.full_name')
+                    ->label('Student Name')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('course.name')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('year_level')
+                Tables\Columns\TextColumn::make('level')
+                    ->label('Year Level')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('block')
+                Tables\Columns\TextColumn::make('section')
+                    ->label('Section')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('year.name')
                     ->numeric()

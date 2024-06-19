@@ -132,7 +132,10 @@ class StudentResource extends Resource
                     ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('gender'),
-                Tables\Columns\TextColumn::make('academic_year_semester.name')
+                Tables\Columns\TextColumn::make('year.name')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('semester.name')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')

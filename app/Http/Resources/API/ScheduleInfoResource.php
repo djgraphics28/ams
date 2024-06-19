@@ -20,7 +20,8 @@ class ScheduleInfoResource extends JsonResource
             'start' => $this->start,
             'end' => $this->end,
             'days' => $this->days,
-            'academic_year_semester' => $this->academic_year_semester->name,
+            'school_year' => $this->year->name,
+            'semester' => $this->semester->name,
             'subject' => $this->subject->name,
             'subject_description' => $this->subject->description,
         ];
