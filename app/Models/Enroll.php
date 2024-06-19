@@ -16,6 +16,13 @@ class Enroll extends Model
 
     protected $guarded = [];
 
+    protected $fillable = [
+        'year_level',
+        'course_id',
+        'block',
+        'student_id',
+    ];
+
     /**
      * Get all of the enrolled_subjects for the Enroll
      *
@@ -75,4 +82,35 @@ class Enroll extends Model
     {
         return $this->belongsTo(Year::class, 'year_id', 'id');
     }
+
+    public function getLevelAttribute()
+    {
+        $levels = [
+            1 => 'FIRST YEAR',
+            2 => 'SECOND YEAR',
+            3 => 'THIRD YEAR',
+            4 => 'FOURTH YEAR',
+        ];
+
+        return $levels[$this->year_level] ?? 'UNKNOWN YEAR LEVEL';
+    }
+
+    public function getSectionAttribute()
+    {
+        $blocks = [
+            'A' => 'Block A',
+            'B' => 'Block B',
+            'C' => 'Block C',
+            'D' => 'Block D',
+            'E' => 'Block E',
+            'F' => 'Block F',
+            'G' => 'Block G',
+            'H' => 'Block H',
+            'I' => 'Block I',
+            'J' => 'Block J',
+        ];
+
+        return $blocks[$this->block] ?? 'UNKNOWN BLOCK';
+    }
+
 }

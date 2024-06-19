@@ -22,8 +22,6 @@ class InstructorController extends Controller
         // Retrieve the authenticated instructor
         // $instructor = Auth::guard('instructor')->user();
 
-        $date = $request->date;
-
         // Eager load schedules and attendances
         $data = Instructor::with([
             'schedules',
@@ -46,6 +44,7 @@ class InstructorController extends Controller
             'data' => $schedules
         ]);
     }
+
     public function markAttendance(Request $request, $id)
     {
         $request->validate([
