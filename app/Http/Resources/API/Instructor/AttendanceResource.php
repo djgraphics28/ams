@@ -29,6 +29,8 @@ class AttendanceResource extends JsonResource
             'start' => $start->format('h:i A'),
             'end' => Carbon::parse($this->schedule->end)->timezone('Asia/Manila')->format('h:i A') ?? null,
             'is_late' => $time_in ? $time_in->greaterThan($startToday) : false,
+            'created_at' => $this->created_at ? Carbon::parse($this->created_at)->timezone('Asia/Manila')->format('Y-m-d') : null,
+            'updated_at' => $this->updated_at ? Carbon::parse($this->updated_at)->timezone('Asia/Manila')->format('Y-m-d') : null,
         ];
     }
 

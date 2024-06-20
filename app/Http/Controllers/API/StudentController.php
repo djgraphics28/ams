@@ -26,9 +26,27 @@ class StudentController extends Controller
             ], 404);
         }
 
+        // Retrieve year_id and semester_id directly from request parameters
+        $year_id = $request->year_id;
+        $semester_id = $request->semester_id;
+
+        // Filter schedules based on year_id and semester_id if provided
+        $schedules = $data->schedules();
+
+        if ($year_id) {
+            $schedules->where('year_id', $year_id);
+        }
+
+        if ($semester_id) {
+            $schedules->where('semester_id', $semester_id);
+        }
+
+        // Get the filtered schedules
+        $filteredSchedules = $schedules->get();
+
         // Return the data as JSON response
         return response()->json([
-            'schedules' => StudentScheduleResource::collection($data->schedules)
+            'schedules' => StudentScheduleResource::collection($filteredSchedules)
         ]);
     }
 
@@ -73,9 +91,23 @@ class StudentController extends Controller
             ], 404);
         }
 
-        $schedule = $student->attendances->where('schedule_id',$schedule_id);
+        $query = $student->attendances()->where('schedule_id', $schedule_id);
 
-        if (!$schedule) {
+        // Check if start_date parameter is provided
+        if ($request->has('start_date')) {
+            $start_date = $request->input('start_date');
+            $query->whereDate('created_at', '>=', $start_date);
+        }
+
+        // Check if end_date parameter is provided
+        if ($request->has('end_date')) {
+            $end_date = $request->input('end_date');
+            $query->whereDate('created_at', '<=', $end_date);
+        }
+
+        $schedule = $query->get();
+
+        if ($schedule->isEmpty()) {
             return response()->json([
                 'message' => 'Attendance not found',
             ], 404);
@@ -85,4 +117,5 @@ class StudentController extends Controller
             'data' => AttendanceResource::collection($schedule)
         ]);
     }
+
 }
