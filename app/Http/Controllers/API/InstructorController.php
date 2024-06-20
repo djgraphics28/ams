@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Http\Resources\API\Instructor\AvailableEnrolledStudentResource;
 use Carbon\Carbon;
+use App\Models\Enroll;
 use App\Models\Student;
 use App\Models\Schedule;
 use App\Models\Attendance;
@@ -12,6 +14,7 @@ use Illuminate\Http\Request;
 use App\Mail\EmailNotification;
 use App\Models\MessageTemplate;
 use Vonage\Laravel\Facade\Vonage;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\AcademicYearSemester;
 use Illuminate\Support\Facades\Auth;
@@ -331,6 +334,7 @@ class InstructorController extends Controller
                 'full_name' => $student->full_name,
                 'course' => $student->course->name,
                 'email' => $student->email,
+                'image' => config('app.url') . '/storage/' . $student->image,
                 'student_number' => $student->student_number,
                 'attendance_status' => $attendanceStatus,
             ];
@@ -354,5 +358,34 @@ class InstructorController extends Controller
         return response()->json([
             'data' => StudentProfileResource::collection($student)
         ]);
+    }
+
+    public function getAvailableEnrolledStudents($scheduleId)
+    {
+        // Find the schedule by its ID
+        $schedule = Schedule::find($scheduleId);
+
+        // Check if schedule exists
+        if (!$schedule) {
+            return response()->json([
+                'message' => 'Schedule not found',
+            ], 404);
+        }
+
+        // Get the subject ID from the schedule
+        $subjectId = $schedule->subject_id;
+
+        // Get enrolled students for the subject linked to this schedule
+        $enrolledStudents = Enroll::whereHas('enrolled_subjects', function ($query) use ($subjectId) {
+            $query->where('id', $subjectId);
+        })->get();
+
+        // Transform the collection using the resource
+        $formattedStudents = AvailableEnrolledStudentResource::collection($enrolledStudents);
+
+        // Return the formatted response
+        return response()->json([
+            'data' => $formattedStudents,
+        ], 200);
     }
 }
