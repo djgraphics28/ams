@@ -328,7 +328,7 @@ class InstructorController extends Controller
             // Prepare student data for response
             $enrolledStudents[] = [
                 'id' => $student->id,
-                'name' => $student->full_name,
+                'full_name' => $student->full_name,
                 'course' => $student->course->name,
                 'email' => $student->email,
                 'student_number' => $student->student_number,
