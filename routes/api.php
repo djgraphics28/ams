@@ -27,6 +27,8 @@ Route::post('/student/login', [StudentAuthController::class, 'login']);
 
 Route::post('/instructor/login', [InstructorAuthController::class, 'login']);
 
+Route::get('/academic-filter', [StudentController::class, 'getYearSemeter']);
+
 Route::group(['prefix' => 'student'], function () {
     Route::get('/{id}/schedules', [StudentController::class, 'getSchedules'])->name('student.schedules');
     Route::post('/{id}/logout', [StudentAuthController::class, 'logout']);

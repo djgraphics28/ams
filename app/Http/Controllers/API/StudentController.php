@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Resources\API\Instructor\AttendanceResource;
-use App\Http\Resources\API\StudentScheduleResource;
+use App\Models\Year;
 use App\Models\Student;
+use App\Models\Semester;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\AcademicYearSemester;
 use App\Http\Resources\API\StudentProfileResource;
+use App\Http\Resources\API\StudentScheduleResource;
 use App\Http\Resources\API\Instructor\ScheduleResource;
+use App\Http\Resources\API\Instructor\AttendanceResource;
 
 class StudentController extends Controller
 {
@@ -26,9 +28,9 @@ class StudentController extends Controller
             ], 404);
         }
 
-        // Retrieve year_id and semester_id directly from request parameters
-        $year_id = $request->year_id;
-        $semester_id = $request->semester_id;
+        // Retrieve year and semester from request query parameters
+        $year_id = $request->query('year');
+        $semester_id = $request->query('semester');
 
         // Filter schedules based on year_id and semester_id if provided
         $schedules = $data->schedules();
@@ -49,6 +51,7 @@ class StudentController extends Controller
             'schedules' => StudentScheduleResource::collection($filteredSchedules)
         ]);
     }
+
 
     public function getSchoolYearSemester(Request $request)
     {
@@ -115,6 +118,27 @@ class StudentController extends Controller
 
         return response()->json([
             'data' => AttendanceResource::collection($schedule)
+        ]);
+    }
+
+    public function getYearSemeter(Request $request)
+    {
+        $data = [];
+
+        $year = Year::all();
+        $semester = Semester::all();
+
+        $data['year'] = $year;
+        $data['semester'] = $semester;
+
+        if (!$year && !$semester) {
+            return response()->json([
+                'message' => 'No Year and Semster!',
+            ], 404);
+        }
+
+        return response()->json([
+            'data' => $data
         ]);
     }
 
