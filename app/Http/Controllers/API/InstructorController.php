@@ -318,11 +318,11 @@ class InstructorController extends Controller
         $enrolledStudents = [];
 
         foreach ($students as $student) {
-            $attendanceStatus = 'absent'; // Default to absent
+            $attendanceStatus = false; // Default to absent
 
             // Check if the student has attendance for today
             if ($student->attendances->isNotEmpty()) {
-                $attendanceStatus = 'present';
+                $attendanceStatus = true;
             }
 
             // Prepare student data for response
