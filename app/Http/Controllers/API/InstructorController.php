@@ -343,7 +343,7 @@ class InstructorController extends Controller
                 'full_name' => $student->full_name,
                 'course' => $student->course->name,
                 'email' => $student->email,
-                'image' =>  config('app.url').'/storage/'.$student->image,
+                'image' => config('app.url').'/storage/'.$student->image,
                 'student_number' => $student->student_number,
                 'attendance_status' => $attendanceStatus,
             ];
