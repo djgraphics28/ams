@@ -17,6 +17,7 @@ use App\Models\AcademicYearSemester;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Resources\API\ScheduleInfoResource;
+use App\Http\Resources\API\StudentProfileResource;
 use App\Http\Resources\API\InstructorProfileResource;
 use App\Http\Resources\API\Instructor\ScheduleResource;
 use App\Http\Resources\API\Instructor\AttendanceResource;
@@ -136,7 +137,7 @@ class InstructorController extends Controller
             // Check if there are guardian details
             if (!is_null($student->parent_name) && !is_null($student->parent_number)) {
                 // Fetch the message template
-                $messageTemplate = MessageTemplate::where('type', 'sms')->where('level_of_offense','1st offense')->first();
+                $messageTemplate = MessageTemplate::where('type', 'sms')->where('level_of_offense', '1st offense')->first();
 
                 if ($messageTemplate) {
                     // Replace placeholders with actual values
@@ -274,6 +275,23 @@ class InstructorController extends Controller
         ]);
     }
 
+    // public function getEnrolledStudents(Request $request, $schedId)
+    // {
+    //     $schedule = Schedule::find($schedId);
+
+    //     if (!$schedule) {
+    //         return response()->json([
+    //             'message' => 'Schedule not found',
+    //         ], 404);
+    //     }
+
+    //     $students = $schedule->students;
+
+    //     return response()->json([
+    //         'data' => EnrolledStudentResource::collection($students)
+    //     ]);
+    // }
+
     public function getEnrolledStudents(Request $request, $schedId)
     {
         $schedule = Schedule::find($schedId);
@@ -284,10 +302,57 @@ class InstructorController extends Controller
             ], 404);
         }
 
-        $students = $schedule->students;
+        // Get the current date
+        $today = now()->toDateString();
+
+        // Retrieve enrolled students and check their attendance for today
+        $students = $schedule->students()
+            ->with([
+                'attendances' => function ($query) use ($today) {
+                    $query->whereDate('created_at', $today);
+                }
+            ])
+            ->get();
+
+        // Prepare response data
+        $enrolledStudents = [];
+
+        foreach ($students as $student) {
+            $attendanceStatus = 'absent'; // Default to absent
+
+            // Check if the student has attendance for today
+            if ($student->attendances->isNotEmpty()) {
+                $attendanceStatus = 'present';
+            }
+
+            // Prepare student data for response
+            $enrolledStudents[] = [
+                'id' => $student->id,
+                'name' => $student->full_name,
+                'course' => $student->course->name,
+                'email' => $student->email,
+                'student_number' => $student->student_number,
+                'attendance_status' => $attendanceStatus,
+            ];
+        }
 
         return response()->json([
-            'data' => EnrolledStudentResource::collection($students)
+            'data' => $enrolledStudents,
+        ]);
+    }
+
+    public function getStudentProfile(Request $request, $id)
+    {
+        $student = Student::find($id)->first();
+
+        if (!$student) {
+            return response()->json([
+                'message' => 'Student not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'data' => StudentProfileResource::collection($student)
         ]);
     }
 }
