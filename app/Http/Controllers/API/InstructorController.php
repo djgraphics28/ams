@@ -9,15 +9,18 @@ use App\Models\Attendance;
 use App\Models\Instructor;
 use Vonage\SMS\Message\SMS;
 use Illuminate\Http\Request;
+use App\Mail\EmailNotification;
 use App\Models\MessageTemplate;
 use Vonage\Laravel\Facade\Vonage;
 use App\Http\Controllers\Controller;
 use App\Models\AcademicYearSemester;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Resources\API\ScheduleInfoResource;
 use App\Http\Resources\API\InstructorProfileResource;
 use App\Http\Resources\API\Instructor\ScheduleResource;
 use App\Http\Resources\API\Instructor\AttendanceResource;
+use App\Http\Resources\API\Instructor\EnrolledStudentResource;
 
 class InstructorController extends Controller
 {
@@ -143,9 +146,11 @@ class InstructorController extends Controller
                         $messageTemplate->template
                     );
 
+                    Mail::send(new EmailNotification());
+
                     // Send notification to guardian
-                    $text = new SMS($student->parent_number, '+639273397377', $message);
-                    Vonage::sms()->send($text);
+                    // $text = new SMS($student->parent_number, '+639273397377', $message);
+                    // Vonage::sms()->send($text);
                 }
             }
         }
@@ -266,6 +271,23 @@ class InstructorController extends Controller
 
         return response()->json([
             'message' => 'Student enrolled to schedule successfully',
+        ]);
+    }
+
+    public function getEnrolledStudents(Request $request, $schedId)
+    {
+        $schedule = Schedule::find($schedId);
+
+        if (!$schedule) {
+            return response()->json([
+                'message' => 'Schedule not found',
+            ], 404);
+        }
+
+        $students = $schedule->students;
+
+        return response()->json([
+            'data' => EnrolledStudentResource::collection($students)
         ]);
     }
 }
