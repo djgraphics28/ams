@@ -302,8 +302,10 @@ class InstructorController extends Controller
             ], 404);
         }
 
-        // Get the current date
-        $today = now()->toDateString();
+        // Get the current date and time
+        $now = now();
+        $today = $now->toDateString();
+        $currentTime = $now->toTimeString();
 
         // Retrieve enrolled students and check their attendance for today
         $students = $schedule->students()
@@ -318,11 +320,21 @@ class InstructorController extends Controller
         $enrolledStudents = [];
 
         foreach ($students as $student) {
-            $attendanceStatus = false; // Default to absent
+            $attendanceStatus = 'Absent'; // Default to Absent
 
             // Check if the student has attendance for today
             if ($student->attendances->isNotEmpty()) {
-                $attendanceStatus = true;
+                // Check the latest attendance record
+                $latestAttendance = $student->attendances->sortByDesc('created_at')->first();
+
+                // Determine the attendance status based on conditions
+                if ($latestAttendance->time_in <= $schedule->start) {
+                    $attendanceStatus = 'In';
+                } elseif ($currentTime > $schedule->end) {
+                    $attendanceStatus = 'Absent';
+                } elseif ($currentTime > $schedule->start && $currentTime <= $schedule->end) {
+                    $attendanceStatus = 'Running late';
+                }
             }
 
             // Prepare student data for response
@@ -331,7 +343,8 @@ class InstructorController extends Controller
                 'full_name' => $student->full_name,
                 'course' => $student->course->name,
                 'email' => $student->email,
-                'student_number' => $student->student_number,
+                'image' => $student->email,
+                'student_number' => config('app.url').'/storage/'.$student->image,
                 'attendance_status' => $attendanceStatus,
             ];
         }
