@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\API\Instructor;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -17,8 +18,8 @@ class ScheduleResource extends JsonResource
         return [
             'id' => $this->id,
             'sched_code' => $this->sched_code,
-            'start' => $this->start,
-            'end' => $this->end,
+            'start' => Carbon::parse($this->start)->format('h:i A'),
+            'end' => Carbon::parse($this->end)->format('h:i A'),
             'days' => $this->days,
             'school_year' => $this->year->name,
             'semester' => $this->semester->name,
