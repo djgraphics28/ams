@@ -302,10 +302,8 @@ class InstructorController extends Controller
             ], 404);
         }
 
-        // Get the current date and time
-        $now = now();
-        $today = $now->toDateString();
-        $currentTime = $now->toTimeString();
+        // Get the current date
+        $today = now()->toDateString();
 
         // Retrieve enrolled students and check their attendance for today
         $students = $schedule->students()
@@ -320,21 +318,11 @@ class InstructorController extends Controller
         $enrolledStudents = [];
 
         foreach ($students as $student) {
-            $attendanceStatus = 'Absent'; // Default to Absent
+            $attendanceStatus = false; // Default to absent
 
             // Check if the student has attendance for today
             if ($student->attendances->isNotEmpty()) {
-                // Check the latest attendance record
-                $latestAttendance = $student->attendances->sortByDesc('created_at')->first();
-
-                // Determine the attendance status based on conditions
-                if ($latestAttendance->time_in <= $schedule->start) {
-                    $attendanceStatus = 'In';
-                } elseif ($currentTime > $schedule->end) {
-                    $attendanceStatus = 'Absent';
-                } elseif ($currentTime > $schedule->start && $currentTime <= $schedule->end) {
-                    $attendanceStatus = 'Running late';
-                }
+                $attendanceStatus = true;
             }
 
             // Prepare student data for response
@@ -343,7 +331,6 @@ class InstructorController extends Controller
                 'full_name' => $student->full_name,
                 'course' => $student->course->name,
                 'email' => $student->email,
-                'image' => config('app.url').'/storage/'.$student->image,
                 'student_number' => $student->student_number,
                 'attendance_status' => $attendanceStatus,
             ];
