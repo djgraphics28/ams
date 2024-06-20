@@ -15,21 +15,22 @@ class AttendanceResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        // Check if time_in is not null and is a valid date
-        $time_in = null;
-        if ($this->time_in) {
-            $time_in = Carbon::parse($this->time_in)->timezone('Asia/Manila')->format('Y-m-d H:i:s');
-        }
+        $time_in = $this->time_in ? Carbon::parse($this->time_in)->timezone('Asia/Manila') : null;
+        $start = Carbon::parse($this->schedule->start)->timezone('Asia/Manila');
+
+        // Adjusting for the same day comparison
+        $startToday = Carbon::parse($start)->setDateFrom($time_in);
 
         return [
             'id' => $this->id,
-            'time_in' => Carbon::parse($time_in)->format('h:i A'), // Use the converted time_in value
-            'scanned_by' => $this->instructor->full_name ?? null, // Use null coalescing for nested properties
-            // 'student' => $this->student->full_name ?? null,
-            // 'course' => $this->student->course->name ?? null,
-            // 'subject' => $this->schedule->subject->name ?? null,
-            // 'description' => $this->schedule->subject->description ?? null, // Assuming 'description' is correct, changed from name
+            'time_in' => $time_in ? $time_in->format('h:i A') : null,
+            'scanned_by' => $this->instructor->full_name ?? null,
             'schedule' => $this->schedule->sched_code ?? null,
+            'start' => $start->format('h:i A'),
+            'end' => Carbon::parse($this->schedule->end)->timezone('Asia/Manila')->format('h:i A') ?? null,
+            'is_late' => $time_in ? $time_in->greaterThan($startToday) : false,
         ];
     }
+
+
 }
