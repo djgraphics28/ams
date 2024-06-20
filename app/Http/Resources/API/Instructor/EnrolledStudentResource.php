@@ -18,7 +18,9 @@ class EnrolledStudentResource extends JsonResource
             'id' => $this->id,
             'student_number' => $this->student_number,
             'full_name' => $this->full_name, // Use the converted time_
+            'email' => $this->email ?? null,
             'course' => $this->course->name ?? null,
+            'image' => config('app.url').'/storage/'.$this->image,
         ];
     }
 }
