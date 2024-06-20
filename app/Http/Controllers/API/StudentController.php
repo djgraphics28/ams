@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Http\Resources\API\Instructor\AttendanceResource;
 use App\Http\Resources\API\StudentScheduleResource;
 use App\Models\Student;
 use Illuminate\Http\Request;
@@ -59,6 +60,29 @@ class StudentController extends Controller
 
         return response()->json([
             'data' => new StudentProfileResource($student)
+        ]);
+    }
+
+    public function getAttendancesInSchedule(Request $request, $student_id, $schedule_id)
+    {
+        $student = Student::find($student_id);
+
+        if (!$student) {
+            return response()->json([
+                'message' => 'Student not found',
+            ], 404);
+        }
+
+        $schedule = $student->attendances->where('schedule_id',$schedule_id);
+
+        if (!$schedule) {
+            return response()->json([
+                'message' => 'Attendance not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'data' => AttendanceResource::collection($schedule)
         ]);
     }
 }

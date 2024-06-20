@@ -32,6 +32,7 @@ Route::group(['prefix' => 'student'], function () {
     Route::post('/{id}/logout', [StudentAuthController::class, 'logout']);
     Route::get('/schoolYearSemester', [StudentController::class, 'getSchoolYearSemester']);
     Route::get('/{id}/profile', [StudentController::class, 'profile']);
+    Route::get('/{studentId}/schedule/{scheduleId}/attendance', [StudentController::class, 'getAttendancesInSchedule']);
 })->middleware('auth:sanctum');
 
 Route::group(['prefix' => 'instructor'], function () {

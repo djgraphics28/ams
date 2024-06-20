@@ -23,12 +23,12 @@ class AttendanceResource extends JsonResource
 
         return [
             'id' => $this->id,
-            'time_in' => $time_in, // Use the converted time_in value
+            'time_in' => Carbon::parse($time_in)->format('h:i A'), // Use the converted time_in value
             'scanned_by' => $this->instructor->full_name ?? null, // Use null coalescing for nested properties
-            'student' => $this->student->full_name ?? null,
-            'course' => $this->student->course->name ?? null,
-            'subject' => $this->schedule->subject->name ?? null,
-            'description' => $this->schedule->subject->description ?? null, // Assuming 'description' is correct, changed from name
+            // 'student' => $this->student->full_name ?? null,
+            // 'course' => $this->student->course->name ?? null,
+            // 'subject' => $this->schedule->subject->name ?? null,
+            // 'description' => $this->schedule->subject->description ?? null, // Assuming 'description' is correct, changed from name
             'schedule' => $this->schedule->sched_code ?? null,
         ];
     }
