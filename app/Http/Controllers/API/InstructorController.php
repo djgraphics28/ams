@@ -311,23 +311,6 @@ class InstructorController extends Controller
         ]);
     }
 
-    // public function getEnrolledStudents(Request $request, $schedId)
-    // {
-    //     $schedule = Schedule::find($schedId);
-
-    //     if (!$schedule) {
-    //         return response()->json([
-    //             'message' => 'Schedule not found',
-    //         ], 404);
-    //     }
-
-    //     $students = $schedule->students;
-
-    //     return response()->json([
-    //         'data' => EnrolledStudentResource::collection($students)
-    //     ]);
-    // }
-
     public function getEnrolledStudents(Request $request, $schedId)
     {
         $schedule = Schedule::find($schedId);
@@ -377,6 +360,73 @@ class InstructorController extends Controller
             'data' => $enrolledStudents,
         ]);
     }
+
+    public function removeStudentFromSchedule($schedId, $studentId)
+    {
+        $student = Student::find($studentId);
+
+        if (!$student) {
+            return response()->json([
+                'message' => 'Student not found',
+            ], 404);
+        }
+
+        $schedule = Schedule::find($schedId);
+
+        if (!$schedule) {
+            return response()->json([
+                'message' => 'Schedule not found',
+            ], 404);
+        }
+
+        // Check if the student is enrolled in the schedule
+        if (!$student->schedules()->where('schedule_id', $schedId)->exists()) {
+            return response()->json([
+                'message' => 'Student is not enrolled in this schedule',
+            ], 404);
+        }
+
+        // Detach the student from the schedule
+        $student->schedules()->detach($schedId);
+
+        // Get the updated list of enrolled students
+        $students = $schedule->students()
+            ->with([
+                'attendances' => function ($query) {
+                    $query->whereDate('created_at', now()->toDateString());
+                }
+            ])
+            ->get();
+
+        // Prepare response data
+        $enrolledStudents = [];
+
+        foreach ($students as $student) {
+            $attendanceStatus = false; // Default to absent
+
+            // Check if the student has attendance for today
+            if ($student->attendances->isNotEmpty()) {
+                $attendanceStatus = true;
+            }
+
+            // Prepare student data for response
+            $enrolledStudents[] = [
+                'id' => $student->id,
+                'full_name' => $student->full_name,
+                'course' => $student->course->name,
+                'email' => $student->email,
+                'image' => config('app.url') . '/storage/' . $student->image,
+                'student_number' => $student->student_number,
+                'attendance_status' => $attendanceStatus,
+            ];
+        }
+
+        return response()->json([
+            'message' => 'Student removed from schedule successfully',
+            'data' => $enrolledStudents
+        ]);
+    }
+
 
     public function getStudentProfile(Request $request, $id)
     {
