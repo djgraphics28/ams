@@ -18,6 +18,7 @@
         "malzariey/filament-daterangepicker-filter": "^2.7",
         "ramsey/uuid": "^4.7",
         "simplesoftwareio/simple-qrcode": "^4.2",
+        "vonage/client": "^4.0",
         "vonage/vonage-laravel": "^1.0"
     },
     "require-dev": {

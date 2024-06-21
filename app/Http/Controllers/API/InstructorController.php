@@ -150,9 +150,16 @@ class InstructorController extends Controller
                         [$student->parent_name, $student->full_name, $schedule->instructor->full_name],
                         $messageTemplate->template
                     );
-                    // Send notification to guardian
-                    $text = new SMS($student->parent_number, '+639273397377', $message);
-                    Vonage::sms()->send($text);
+
+                    $basic  = new \Vonage\Client\Credentials\Basic("9af65d3f", "4JRcdZ9H1gN9GcFg");
+                    $client = new \Vonage\Client($basic);
+
+                    $response = $client->sms()->send(
+                        new SMS("+".$student->parent_number, 'AMS', $message)
+                    );
+
+                    $message = $response->current();
+
                 }
             }
         }
