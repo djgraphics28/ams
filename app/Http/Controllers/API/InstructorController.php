@@ -150,12 +150,9 @@ class InstructorController extends Controller
                         [$student->parent_name, $student->full_name, $schedule->instructor->full_name],
                         $messageTemplate->template
                     );
-
-                    Mail::send(new EmailNotification());
-
                     // Send notification to guardian
-                    // $text = new SMS($student->parent_number, '+639273397377', $message);
-                    // Vonage::sms()->send($text);
+                    $text = new SMS($student->parent_number, '+639273397377', $message);
+                    Vonage::sms()->send($text);
                 }
             }
         }
