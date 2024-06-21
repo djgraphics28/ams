@@ -8,7 +8,6 @@ use App\Models\Student;
 use App\Models\Schedule;
 use App\Models\Attendance;
 use App\Models\Instructor;
-use Vonage\SMS\Message\SMS;
 use Illuminate\Http\Request;
 use App\Models\EnrollSubject;
 use App\Mail\EmailNotification;
@@ -129,15 +128,6 @@ class InstructorController extends Controller
                 $late = true;
             }
 
-            // Create a new Attendance record
-            $attendance = Attendance::create([
-                'student_id' => $student->id,
-                'schedule_id' => $request->schedule_id,
-                'scanned_by' => $id,
-                'is_late' => $late,
-                'time_in' => $time_in->format('Y-m-d H:i:s'),
-            ]);
-
             // Check if there are guardian details
             if (!is_null($student->parent_name) && !is_null($student->parent_number)) {
                 // Fetch the message template
@@ -162,16 +152,25 @@ class InstructorController extends Controller
 
                 // }
 
-                $basic  = new \Vonage\Client\Credentials\Basic("9af65d3f", "4JRcdZ9H1gN9GcFg");
-                    $client = new \Vonage\Client($basic);
+                $basic = new \Vonage\Client\Credentials\Basic("9af65d3f", "4JRcdZ9H1gN9GcFg");
+                $client = new \Vonage\Client($basic);
 
-                    $response = $client->sms()->send(
-                        new SMS("+".$student->parent_number, 'AMS', 'Hi Parent, Your child,'.$student->full_name.', is has been late on his/her subjcet today, please tell him/her to login ealier.')
-                    );
-
-                    $message = $response->current();
+                $client->sms()->send(
+                    new \Vonage\SMS\Message\SMS("+" . $student->parent_number, 'AMS', 'Hi Parent, Your child,' . $student->full_name . ',  has been late for their class today. Please remind them to log in earlier. Thank you!')
+                );
             }
         }
+
+        // Create a new Attendance record
+        $attendance = Attendance::create([
+            'student_id' => $student->id,
+            'schedule_id' => $request->schedule_id,
+            'scanned_by' => $id,
+            'is_late' => $late,
+            'time_in' => $time_in->format('Y-m-d H:i:s'),
+        ]);
+
+
 
         return response()->json([
             'message' => 'Attendance marked successfully',
