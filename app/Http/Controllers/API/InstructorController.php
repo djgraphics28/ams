@@ -131,32 +131,23 @@ class InstructorController extends Controller
             // Check if there are guardian details
             if (!is_null($student->parent_name) && !is_null($student->parent_number)) {
                 // Fetch the message template
-                // $messageTemplate = MessageTemplate::where('type', 'sms')->where('level_of_offense', '1st offense')->first();
+                $messageTemplate = MessageTemplate::where('type', 'sms')->where('level_of_offense', '1st offense')->first();
 
-                // if ($messageTemplate) {
-                //     // Replace placeholders with actual values
-                //     $message = str_replace(
-                //         ['[parentName]', '[studentName]', '[instructorName]'],
-                //         [$student->parent_name, $student->full_name, $schedule->instructor->full_name],
-                //         $messageTemplate->template
-                //     );
+                if ($messageTemplate) {
+                    // Replace placeholders with actual values
+                    $message = str_replace(
+                        ['[parentName]', '[studentName]', '[instructorName]'],
+                        [$student->parent_name, $student->full_name, $schedule->instructor->full_name],
+                        $messageTemplate->template
+                    );
 
-                //     $basic  = new \Vonage\Client\Credentials\Basic("9af65d3f", "4JRcdZ9H1gN9GcFg");
-                //     $client = new \Vonage\Client($basic);
-
-                //     $response = $client->sms()->send(
-                //         new SMS("+".$student->parent_number, 'AMS', $message)
-                //     );
-
-                //     $message = $response->current();
-
-                // }
+                }
 
                 $basic = new \Vonage\Client\Credentials\Basic("9af65d3f", "4JRcdZ9H1gN9GcFg");
                 $client = new \Vonage\Client($basic);
 
                 $client->sms()->send(
-                    new \Vonage\SMS\Message\SMS("+" . $student->parent_number, 'AMS', 'Hi Parent, Your child,' . $student->full_name . ',  has been late for their class today. Please remind them to log in earlier. Thank you!')
+                    new \Vonage\SMS\Message\SMS("+" . $student->parent_number, 'AMS', $message)
                 );
             }
         }
