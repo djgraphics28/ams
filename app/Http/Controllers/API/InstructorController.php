@@ -274,8 +274,43 @@ class InstructorController extends Controller
         // Enroll the student to the schedule
         $student->schedules()->attach($schedId);
 
+        // Get the current date
+        $today = now()->toDateString();
+
+        $students = $schedule->students()
+            ->with([
+                'attendances' => function ($query) use ($today) {
+                    $query->whereDate('created_at', $today);
+                }
+            ])
+            ->get();
+
+        // Prepare response data
+        $enrolledStudents = [];
+
+        foreach ($students as $student) {
+            $attendanceStatus = false; // Default to absent
+
+            // Check if the student has attendance for today
+            if ($student->attendances->isNotEmpty()) {
+                $attendanceStatus = true;
+            }
+
+            // Prepare student data for response
+            $enrolledStudents[] = [
+                'id' => $student->id,
+                'full_name' => $student->full_name,
+                'course' => $student->course->name,
+                'email' => $student->email,
+                'image' => config('app.url') . '/storage/' . $student->image,
+                'student_number' => $student->student_number,
+                'attendance_status' => $attendanceStatus,
+            ];
+        }
+
         return response()->json([
             'message' => 'Student enrolled to schedule successfully',
+            'data' => $enrolledStudents
         ]);
     }
 
