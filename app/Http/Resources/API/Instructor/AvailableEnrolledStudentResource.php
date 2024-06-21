@@ -16,11 +16,11 @@ class AvailableEnrolledStudentResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'student_number' => $this->student->student_number,
-            'full_name' => $this->student->full_name, // Use the converted time_
-            'email' => $this->student->email ?? null,
-            'course' => $this->student->course->name ?? null,
-            'image' => config('app.url').'/storage/'.$this->student->image,
+            'student_number' => $this->student_number,
+            'full_name' => $this->full_name, // Use the converted time_
+            'email' => $this->email ?? null,
+            'course' => $this->course->name ?? null,
+            'image' => config('app.url').'/storage/'.$this->image,
         ];
     }
 }

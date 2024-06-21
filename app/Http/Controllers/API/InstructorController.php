@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Resources\API\Instructor\AvailableEnrolledStudentResource;
 use Carbon\Carbon;
 use App\Models\Enroll;
 use App\Models\Student;
@@ -11,6 +10,7 @@ use App\Models\Attendance;
 use App\Models\Instructor;
 use Vonage\SMS\Message\SMS;
 use Illuminate\Http\Request;
+use App\Models\EnrollSubject;
 use App\Mail\EmailNotification;
 use App\Models\MessageTemplate;
 use Vonage\Laravel\Facade\Vonage;
@@ -25,6 +25,7 @@ use App\Http\Resources\API\InstructorProfileResource;
 use App\Http\Resources\API\Instructor\ScheduleResource;
 use App\Http\Resources\API\Instructor\AttendanceResource;
 use App\Http\Resources\API\Instructor\EnrolledStudentResource;
+use App\Http\Resources\API\Instructor\AvailableEnrolledStudentResource;
 
 class InstructorController extends Controller
 {
@@ -375,17 +376,24 @@ class InstructorController extends Controller
         // Get the subject ID from the schedule
         $subjectId = $schedule->subject_id;
 
-        // Get enrolled students for the subject linked to this schedule
-        $enrolledStudents = Enroll::whereHas('enrolled_subjects', function ($query) use ($subjectId) {
-            $query->where('id', $subjectId);
-        })->get();
+        // Get the list of student IDs who are enrolled in the subject
+        $enrolledStudentIds = Enroll::whereHas('enrolled_subjects', function ($query) use ($subjectId) {
+            $query->where('subject_id', $subjectId);
+        })->pluck('student_id');
+
+        // Get the list of students who are not enrolled in the schedule but are enrolled in the subject
+        $availableStudents = Student::whereDoesntHave('schedules', function ($query) use ($scheduleId) {
+            $query->where('schedule_id', $scheduleId);
+        })->whereIn('id', $enrolledStudentIds)->get();
 
         // Transform the collection using the resource
-        $formattedStudents = AvailableEnrolledStudentResource::collection($enrolledStudents);
+        $formattedStudents = AvailableEnrolledStudentResource::collection($availableStudents);
 
         // Return the formatted response
         return response()->json([
             'data' => $formattedStudents,
         ], 200);
     }
+
+
 }
