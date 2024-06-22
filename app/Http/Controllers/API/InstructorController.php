@@ -476,12 +476,13 @@ class InstructorController extends Controller
         //     $query->where('subject_id', $subjectId);
         // })->pluck('student_id');
 
-        $availableStudents = Student::pluck('student_id');
+        // Get the list of all student IDs
+        $allStudentIds = Student::pluck('id');
 
         // Get the list of students who are not enrolled in the schedule but are enrolled in the subject
         $availableStudents = Student::whereDoesntHave('schedules', function ($query) use ($scheduleId) {
             $query->where('schedule_id', $scheduleId);
-        })->whereIn('id', $availableStudents)->get();
+        })->whereIn('id', $allStudentIds)->get();
 
 
 
