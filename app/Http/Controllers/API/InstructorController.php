@@ -341,11 +341,9 @@ class InstructorController extends Controller
 
         // Retrieve enrolled students and check their attendance for today
         $students = $schedule->students()
-            ->with([
-                'attendances' => function ($query) use ($today) {
-                    $query->whereDate('created_at', $today);
-                }
-            ])
+            ->whereHas('attendances', function ($query) use ($today) {
+                $query->whereDate('created_at', $today);
+            })
             ->get();
 
         // Prepare response data
@@ -471,17 +469,19 @@ class InstructorController extends Controller
         }
 
         // Get the subject ID from the schedule
-        $subjectId = $schedule->subject_id;
+        // $subjectId = $schedule->subject_id;
 
-        // Get the list of student IDs who are enrolled in the subject
-        $enrolledStudentIds = Enroll::whereHas('enrolled_subjects', function ($query) use ($subjectId) {
-            $query->where('subject_id', $subjectId);
-        })->pluck('student_id');
+        // // Get the list of student IDs who are enrolled in the subject
+        // $enrolledStudentIds = Enroll::whereHas('enrolled_subjects', function ($query) use ($subjectId) {
+        //     $query->where('subject_id', $subjectId);
+        // })->pluck('student_id');
 
-        // Get the list of students who are not enrolled in the schedule but are enrolled in the subject
-        $availableStudents = Student::whereDoesntHave('schedules', function ($query) use ($scheduleId) {
-            $query->where('schedule_id', $scheduleId);
-        })->whereIn('id', $enrolledStudentIds)->get();
+        // // Get the list of students who are not enrolled in the schedule but are enrolled in the subject
+        // $availableStudents = Student::whereDoesntHave('schedules', function ($query) use ($scheduleId) {
+        //     $query->where('schedule_id', $scheduleId);
+        // })->whereIn('id', $enrolledStudentIds)->get();
+
+        $availableStudents = Student::all();
 
         // Transform the collection using the resource
         $formattedStudents = AvailableEnrolledStudentResource::collection($availableStudents);
