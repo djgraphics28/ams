@@ -118,4 +118,14 @@ class Student extends Authenticatable
         return $this->belongsTo(Year::class, 'year_id', 'id');
     }
 
+    /**
+     * Get all of the student_subjects for the Student
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function student_subjects(): HasMany
+    {
+        return $this->hasMany(StudentSubject::class, 'student_id', 'id');
+    }
+
 }
