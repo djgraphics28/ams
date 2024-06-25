@@ -34,7 +34,7 @@ class StudentResource extends Resource
     {
         $qr_code = Uuid::uuid4()->toString();
         // Get the last student number from the database
-        $lastStudent = Student::orderBy('id', 'desc')->first();
+        $lastStudent = Student::orderBy('id', 'desc')->first()->withTrashed();
         if ($lastStudent) {
             // Extract the numeric part of the student number (e.g., from "20-00001" to "00001")
             $lastStudentNumber = intval(substr($lastStudent->student_number, 3)); // Extract numeric part and convert to integer
