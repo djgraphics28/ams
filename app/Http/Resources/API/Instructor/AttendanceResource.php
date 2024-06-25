@@ -15,7 +15,7 @@ class AttendanceResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $time_in = $this->time_in ? Carbon::parse($this->time_in)->timezone('Asia/Manila') : null;
+        $time_in = $this->time_in ? Carbon::parse($this->time_in)->timezone('Asia/Manila')->format('Y-m-d H:i:s') : null;
         $start = Carbon::parse($this->schedule->start)->timezone('Asia/Manila');
 
         // Adjusting for the same day comparison
