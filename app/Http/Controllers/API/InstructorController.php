@@ -126,7 +126,7 @@ class InstructorController extends Controller
                 $late = true;
             }
 
-            // Check if time_in is later than start_time
+            // Check if time_in is later than end_time
             if ($time_in->greaterThan($end_time)) {
                 return response()->json([
                     'message' => 'The Time sched is already ended!',
@@ -589,6 +589,4 @@ class InstructorController extends Controller
             'data' => $formattedStudents,
         ], 200);
     }
-
-
 }
