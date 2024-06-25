@@ -24,7 +24,7 @@ class AttendanceResource extends JsonResource
         return [
             'id' => $this->id,
             'time_in' => $time_in ? $time_in->format('Y-m-d H:i:s') : null,
-            'scanned_by' => $this->instructor->full_name ?? null,
+            'scanned_by' => $this->schedule->instructor->full_name ?? null,
             'schedule' => $this->schedule->sched_code ?? null,
             'student_name' => $this->student->full_name ?? null,
             'student_number' => $this->student->student_number ?? null,
