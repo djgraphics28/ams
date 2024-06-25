@@ -10,6 +10,7 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Forms\Components\Password;
 use Filament\Resources\Resource;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\ViewField;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
@@ -93,6 +94,14 @@ class StudentResource extends Resource
                     ->required(),
                 Forms\Components\TextInput::make('password')
                     ->label('Password'),
+                Repeater::make('student_subjects')
+                    ->relationship()
+                    ->schema([
+                        Forms\Components\Select::make('subject_id')
+                            ->relationship('subject', 'name')
+                            ->required(),
+                    ])
+                    ->columnSpanFull(),
                 // ->hidden(),
 
                 Forms\Components\Section::make('Guardian Details')
