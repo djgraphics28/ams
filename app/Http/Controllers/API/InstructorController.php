@@ -167,7 +167,7 @@ class InstructorController extends Controller
             'schedule_id' => $request->schedule_id,
             'scanned_by' => $id,
             'is_late' => $late,
-            'time_in' => $time_in->format('Y-m-d H:i:s'),
+            'time_in' => Carbon::parse($time_in, 'Asia/Manila')->format('Y-m-d H:i:s'),
         ]);
 
 
