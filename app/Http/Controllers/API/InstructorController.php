@@ -118,11 +118,19 @@ class InstructorController extends Controller
         if ($schedule) {
             // Parse the start time and current time into Carbon instances
             $start_time = Carbon::parse($schedule->start_time, 'Asia/Manila');
+            $end_time = Carbon::parse($schedule->end_time, 'Asia/Manila');
             $time_in = Carbon::now('Asia/Manila');
 
             // Check if time_in is later than start_time
             if ($time_in->greaterThan($start_time)) {
                 $late = true;
+            }
+
+            // Check if time_in is later than start_time
+            if ($time_in->greaterThan($end_time)) {
+                return response()->json([
+                    'message' => 'The Time sched is already ended!',
+                ], 404);
             }
 
             // Check if there are guardian details and send SMS if late
