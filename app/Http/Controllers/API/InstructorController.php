@@ -91,27 +91,6 @@ class InstructorController extends Controller
                 ], 404);
             }
 
-            // Check if the student has already logged in today for this schedule
-            $currentDate = now()->toDateString();
-            $check = Attendance::where('schedule_id', $request->schedule_id)
-                ->where('student_id', $student->id)
-                ->whereDate('time_in', $currentDate)
-                ->exists();
-
-            // If already logged in today, rollback and return response
-            if ($check) {
-                DB::rollBack();
-                return response()->json([
-                    'message' => 'Already Logged in!',
-                    'student' => [
-                        'student_number' => $student->student_number,
-                        'image' => $student->image,
-                        'first_name' => $student->first_name,
-                        'last_name' => $student->last_name,
-                    ],
-                ], 409); // 409 Conflict status code
-            }
-
             // Initialize late flag and current time
             $late = false;
             $time_in = Carbon::now('Asia/Manila');
@@ -143,14 +122,35 @@ class InstructorController extends Controller
                 }
             }
 
-            // Create a new Attendance record
-            $attendance = Attendance::create([
-                'student_id' => $student->id,
-                'schedule_id' => $request->schedule_id,
-                'scanned_by' => $id,
-                'is_late' => $late,
-                'time_in' => $time_in->format('Y-m-d H:i:s'),
-            ]);
+            // Check if the student has already logged in today for this schedule
+            $currentDate = now()->toDateString();
+            $check = Attendance::where('schedule_id', $request->schedule_id)
+                ->where('student_id', $student->id)
+                ->whereDate('time_in', $currentDate)
+                ->exists();
+
+            // If already logged in today, rollback and return response
+            if ($check) {
+                DB::rollBack();
+                return response()->json([
+                    'message' => 'Already Logged in!',
+                    'student' => [
+                        'student_number' => $student->student_number,
+                        'image' => $student->image,
+                        'first_name' => $student->first_name,
+                        'last_name' => $student->last_name,
+                    ],
+                ], 409); // 409 Conflict status code
+            } else {
+                // Create a new Attendance record
+                $attendance = Attendance::create([
+                    'student_id' => $student->id,
+                    'schedule_id' => $request->schedule_id,
+                    'scanned_by' => $id,
+                    'is_late' => $late,
+                    'time_in' => $time_in->format('Y-m-d H:i:s'),
+                ]);
+            }
 
             // Commit the transaction
             DB::commit();
