@@ -141,7 +141,7 @@ class InstructorController extends Controller
                     ],
                 ], 409); // 409 Conflict status code
             } else {
-                Attendance::create(
+                $attendance = Attendance::create(
                     [
                         'student_id' => $student->id,
                         'schedule_id' => $request->schedule_id,
@@ -157,7 +157,7 @@ class InstructorController extends Controller
 
             return response()->json([
                 'message' => 'Attendance marked successfully',
-                // 'attendance' => $attendance,
+                'attendance' => $attendance,
                 'student' => [
                     'student_number' => $student->student_number,
                     'image' => $student->image,
