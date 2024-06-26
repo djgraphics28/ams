@@ -55,7 +55,6 @@ class InstructorController extends Controller
             'data' => $schedules
         ]);
     }
-
     public function markAttendance(Request $request, $id)
     {
         // Validate the request data
@@ -82,15 +81,14 @@ class InstructorController extends Controller
         }
 
         // Check if the student is enrolled in this schedule
-        if ($student->schedules()->where('schedule_id', $request->schedule_id)->doesntExist()) {
+        if (!$student->schedules()->where('schedule_id', $request->schedule_id)->exists()) {
             return response()->json([
                 'message' => 'Student is not enrolled in this schedule!',
             ], 404);
         }
 
+        // Check if the student has already logged in today for this schedule
         $currentDate = now()->toDateString();
-
-        // Check if the student has already logged in today
         $check = Attendance::where('schedule_id', $request->schedule_id)
             ->where('student_id', $student->id)
             ->whereDate('time_in', $currentDate)
@@ -118,20 +116,12 @@ class InstructorController extends Controller
         if ($schedule) {
             // Parse the start time and current time into Carbon instances
             $start_time = Carbon::parse($schedule->start_time, 'Asia/Manila');
-            $end_time = Carbon::parse($schedule->end_time, 'Asia/Manila');
             $time_in = Carbon::now('Asia/Manila');
 
             // Check if time_in is later than start_time
             if ($time_in->greaterThan($start_time)) {
                 $late = true;
             }
-
-            // Check if time_in is later than end_time
-            // if ($time_in->greaterThan($end_time)) {
-            //     return response()->json([
-            //         'message' => 'The Time sched is already ended!',
-            //     ], 404);
-            // }
 
             // Check if there are guardian details and send SMS if late
             if ($late && !is_null($student->parent_name) && !is_null($student->parent_number)) {
@@ -154,7 +144,7 @@ class InstructorController extends Controller
             'schedule_id' => $request->schedule_id,
             'scanned_by' => $id,
             'is_late' => $late,
-            'time_in' => Carbon::parse($time_in, 'Asia/Manila')->format('Y-m-d H:i:s'),
+            'time_in' => $time_in->format('Y-m-d H:i:s'), // Using $time_in from above
         ]);
 
         return response()->json([
@@ -168,7 +158,6 @@ class InstructorController extends Controller
             ],
         ]);
     }
-
 
     // public function markAttendance(Request $request, $id)
     // {
