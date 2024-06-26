@@ -122,25 +122,25 @@ class InstructorController extends Controller
                 }
             }
 
-            // Check if the student has already logged in today for this schedule
-            $currentDate = now()->toDateString();
-            $check = Attendance::where('schedule_id', $request->schedule_id)
-                ->where('student_id', $student->id)
-                ->whereDate('time_in', $currentDate)
-                ->exists();
+            // // Check if the student has already logged in today for this schedule
+            // $currentDate = now()->toDateString();
+            // $check = Attendance::where('schedule_id', $request->schedule_id)
+            //     ->where('student_id', $student->id)
+            //     ->whereDate('time_in', $currentDate)
+            //     ->exists();
 
-            // If already logged in today, return response
-            if ($check) {
-                return response()->json([
-                    'message' => 'Already Logged in!',
-                    'student' => [
-                        'student_number' => $student->student_number,
-                        'image' => $student->image,
-                        'first_name' => $student->first_name,
-                        'last_name' => $student->last_name,
-                    ],
-                ], 409); // 409 Conflict status code
-            }
+            // // If already logged in today, return response
+            // if ($check) {
+            //     return response()->json([
+            //         'message' => 'Already Logged in!',
+            //         'student' => [
+            //             'student_number' => $student->student_number,
+            //             'image' => $student->image,
+            //             'first_name' => $student->first_name,
+            //             'last_name' => $student->last_name,
+            //         ],
+            //     ], 409); // 409 Conflict status code
+            // }
 
             // Create a new Attendance record
             $attendance = Attendance::createOrUpdate(
