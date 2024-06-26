@@ -143,13 +143,19 @@ class InstructorController extends Controller
             }
 
             // Create a new Attendance record
-            $attendance = Attendance::create([
-                'student_id' => $student->id,
-                'schedule_id' => $request->schedule_id,
-                'scanned_by' => $id,
-                'is_late' => $late,
-                'time_in' => $time_in->format('Y-m-d H:i:s'),
-            ]);
+            $attendance = Attendance::createOrUpdate(
+                [
+                    'student_id' => $student->id,
+                    'schedule_id' => $request->schedule_id,
+                    'time_in' => $time_in->format('Y-m-d H:i:s'),
+                ],
+                [
+
+                    'scanned_by' => $id,
+                    'is_late' => $late,
+
+                ]
+            );
 
 
             // Commit the transaction
