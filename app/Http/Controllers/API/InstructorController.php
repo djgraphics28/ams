@@ -122,48 +122,42 @@ class InstructorController extends Controller
                 }
             }
 
-            // // Check if the student has already logged in today for this schedule
-            // $currentDate = now()->toDateString();
-            // $check = Attendance::where('schedule_id', $request->schedule_id)
-            //     ->where('student_id', $student->id)
-            //     ->whereDate('time_in', $currentDate)
-            //     ->exists();
+            // Check if the student has already logged in today for this schedule
+            $currentDate = now()->toDateString();
+            $check = Attendance::where('schedule_id', $request->schedule_id)
+                ->where('student_id', $student->id)
+                ->whereDate('time_in', $currentDate)
+                ->exists();
 
-            // // If already logged in today, return response
-            // if ($check) {
-            //     return response()->json([
-            //         'message' => 'Already Logged in!',
-            //         'student' => [
-            //             'student_number' => $student->student_number,
-            //             'image' => $student->image,
-            //             'first_name' => $student->first_name,
-            //             'last_name' => $student->last_name,
-            //         ],
-            //     ], 409); // 409 Conflict status code
-            // }
-
-            // Create a new Attendance record
-            $attendance = Attendance::createOrUpdate(
-                [
-                    'student_id' => $student->id,
-                    'schedule_id' => $request->schedule_id,
-                    'time_in' => $time_in->format('Y-m-d H:i:s'),
-                ],
-                [
-
-                    'scanned_by' => $id,
-                    'is_late' => $late,
-
-                ]
-            );
-
+            // If already logged in today, return response
+            if ($check) {
+                return response()->json([
+                    'message' => 'Already Logged in!',
+                    'student' => [
+                        'student_number' => $student->student_number,
+                        'image' => $student->image,
+                        'first_name' => $student->first_name,
+                        'last_name' => $student->last_name,
+                    ],
+                ], 409); // 409 Conflict status code
+            } else {
+                Attendance::create(
+                    [
+                        'student_id' => $student->id,
+                        'schedule_id' => $request->schedule_id,
+                        'scanned_by' => $id,
+                        'is_late' => $late,
+                        'time_in' => $time_in->format('Y-m-d H:i:s'),
+                    ]
+                );
+            }
 
             // Commit the transaction
             DB::commit();
 
             return response()->json([
                 'message' => 'Attendance marked successfully',
-                'attendance' => $attendance,
+                // 'attendance' => $attendance,
                 'student' => [
                     'student_number' => $student->student_number,
                     'image' => $student->image,
