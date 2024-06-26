@@ -53,7 +53,7 @@ class AttendanceResource extends Resource
                 Tables\Columns\TextColumn::make('student.full_name')
                     ->label('Student Name')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('instructor.full_name')
+                Tables\Columns\TextColumn::make('schedule.instructor.full_name')
                     ->label('Scanned by')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('schedule.sched_code')

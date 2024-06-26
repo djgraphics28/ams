@@ -127,11 +127,11 @@ class InstructorController extends Controller
             }
 
             // Check if time_in is later than end_time
-            if ($time_in->greaterThan($end_time)) {
-                return response()->json([
-                    'message' => 'The Time sched is already ended!',
-                ], 404);
-            }
+            // if ($time_in->greaterThan($end_time)) {
+            //     return response()->json([
+            //         'message' => 'The Time sched is already ended!',
+            //     ], 404);
+            // }
 
             // Check if there are guardian details and send SMS if late
             if ($late && !is_null($student->parent_name) && !is_null($student->parent_number)) {
@@ -589,6 +589,4 @@ class InstructorController extends Controller
             'data' => $formattedStudents,
         ], 200);
     }
-
-
 }
