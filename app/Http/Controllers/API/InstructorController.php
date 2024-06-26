@@ -129,9 +129,8 @@ class InstructorController extends Controller
                 ->whereDate('time_in', $currentDate)
                 ->exists();
 
-            // If already logged in today, rollback and return response
+            // If already logged in today, return response
             if ($check) {
-                DB::rollBack();
                 return response()->json([
                     'message' => 'Already Logged in!',
                     'student' => [
@@ -141,18 +140,17 @@ class InstructorController extends Controller
                         'last_name' => $student->last_name,
                     ],
                 ], 409); // 409 Conflict status code
-            } else {
-                // Create a new Attendance record
-                $attendance = Attendance::create([
-                    'student_id' => $student->id,
-                    'schedule_id' => $request->schedule_id,
-                    'scanned_by' => $id,
-                    'is_late' => $late,
-                    'time_in' => $time_in->format('Y-m-d H:i:s'),
-                ]);
-
-                sleep(2);
             }
+
+            // Create a new Attendance record
+            $attendance = Attendance::create([
+                'student_id' => $student->id,
+                'schedule_id' => $request->schedule_id,
+                'scanned_by' => $id,
+                'is_late' => $late,
+                'time_in' => $time_in->format('Y-m-d H:i:s'),
+            ]);
+
 
             // Commit the transaction
             DB::commit();
