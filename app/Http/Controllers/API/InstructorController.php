@@ -150,6 +150,8 @@ class InstructorController extends Controller
                     'is_late' => $late,
                     'time_in' => $time_in->format('Y-m-d H:i:s'),
                 ]);
+
+                sleep(2);
             }
 
             // Commit the transaction
