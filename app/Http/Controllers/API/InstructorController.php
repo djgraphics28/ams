@@ -71,93 +71,112 @@ class InstructorController extends Controller
             ],
         ]);
 
-        // Retrieve the student based on the QR code
-        $student = Student::where('qr_code', $request->qr_code)->first();
+        try {
+            // Begin a database transaction
+            DB::beginTransaction();
 
-        if (!$student) {
+            // Retrieve the student based on the QR code
+            $student = Student::where('qr_code', $request->qr_code)->first();
+
+            if (!$student) {
+                return response()->json([
+                    'message' => 'Invalid Student!',
+                ], 404);
+            }
+
+            // Check if the student is enrolled in this schedule
+            if (!$student->schedules()->where('schedule_id', $request->schedule_id)->exists()) {
+                return response()->json([
+                    'message' => 'Student is not enrolled in this schedule!',
+                ], 404);
+            }
+
+            // Check if the student has already logged in today for this schedule
+            $currentDate = now()->toDateString();
+            $check = Attendance::where('schedule_id', $request->schedule_id)
+                ->where('student_id', $student->id)
+                ->whereDate('time_in', $currentDate)
+                ->exists();
+
+            // If already logged in today, rollback and return response
+            if ($check) {
+                DB::rollBack();
+                return response()->json([
+                    'message' => 'Already Logged in!',
+                    'student' => [
+                        'student_number' => $student->student_number,
+                        'image' => $student->image,
+                        'first_name' => $student->first_name,
+                        'last_name' => $student->last_name,
+                    ],
+                ], 409); // 409 Conflict status code
+            }
+
+            // Initialize late flag and current time
+            $late = false;
+            $time_in = Carbon::now('Asia/Manila');
+
+            // Retrieve the schedule based on the provided schedule_id
+            $schedule = Schedule::find($request->schedule_id);
+
+            if ($schedule) {
+                // Parse the start time into a Carbon instance
+                $start_time = Carbon::parse($schedule->start_time, 'Asia/Manila');
+
+                // Check if time_in is later than start_time
+                if ($time_in->greaterThan($start_time)) {
+                    $late = true;
+
+                    // Check if there are guardian details and send SMS if late
+                    if (!is_null($student->parent_name) && !is_null($student->parent_number)) {
+                        $basic = new \Vonage\Client\Credentials\Basic("9af65d3f", "4JRcdZ9H1gN9GcFg");
+                        $client = new \Vonage\Client($basic);
+
+                        $client->sms()->send(
+                            new \Vonage\SMS\Message\SMS(
+                                "+" . $student->parent_number,
+                                'AMS',
+                                'Hi Parent, Your child, ' . $student->full_name . ', has been late for their class today. Please remind them to log in earlier. Thank you!'
+                            )
+                        );
+                    }
+                }
+            }
+
+            // Create a new Attendance record
+            $attendance = Attendance::create([
+                'student_id' => $student->id,
+                'schedule_id' => $request->schedule_id,
+                'scanned_by' => $id,
+                'is_late' => $late,
+                'time_in' => $time_in->format('Y-m-d H:i:s'),
+            ]);
+
+            // Commit the transaction
+            DB::commit();
+
             return response()->json([
-                'message' => 'Invalid Student!',
-            ], 404);
-        }
-
-        // Check if the student is enrolled in this schedule
-        if (!$student->schedules()->where('schedule_id', $request->schedule_id)->exists()) {
-            return response()->json([
-                'message' => 'Student is not enrolled in this schedule!',
-            ], 404);
-        }
-
-        // Check if the student has already logged in today for this schedule
-        $currentDate = now()->toDateString();
-        $check = Attendance::where('schedule_id', $request->schedule_id)
-            ->where('student_id', $student->id)
-            ->whereDate('time_in', $currentDate)
-            ->first();
-
-        if ($check) {
-            return response()->json([
-                'message' => 'Already Logged in!',
-                'attendance' => $check,
+                'message' => 'Attendance marked successfully',
+                'attendance' => $attendance,
                 'student' => [
                     'student_number' => $student->student_number,
                     'image' => $student->image,
                     'first_name' => $student->first_name,
                     'last_name' => $student->last_name,
                 ],
-            ], 409); // 409 Conflict status code
+            ]);
+        } catch (\Exception $e) {
+            // Rollback the transaction on error
+            DB::rollBack();
+
+            // Log the error or return an appropriate response
+            return response()->json([
+                'message' => 'Failed to mark attendance. Please try again later.',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-
-        // Initialize late flag
-        $late = false;
-
-        // Retrieve the schedule based on the provided schedule_id
-        $schedule = Schedule::find($request->schedule_id);
-
-        if ($schedule) {
-            // Parse the start time and current time into Carbon instances
-            $start_time = Carbon::parse($schedule->start_time, 'Asia/Manila');
-            $time_in = Carbon::now('Asia/Manila');
-
-            // Check if time_in is later than start_time
-            if ($time_in->greaterThan($start_time)) {
-                $late = true;
-            }
-
-            // Check if there are guardian details and send SMS if late
-            if ($late && !is_null($student->parent_name) && !is_null($student->parent_number)) {
-                $basic = new \Vonage\Client\Credentials\Basic("9af65d3f", "4JRcdZ9H1gN9GcFg");
-                $client = new \Vonage\Client($basic);
-
-                $client->sms()->send(
-                    new \Vonage\SMS\Message\SMS(
-                        "+" . $student->parent_number,
-                        'AMS',
-                        'Hi Parent, Your child, ' . $student->full_name . ', has been late for their class today. Please remind them to log in earlier. Thank you!'
-                    )
-                );
-            }
-        }
-
-        // Create a new Attendance record
-        $attendance = Attendance::create([
-            'student_id' => $student->id,
-            'schedule_id' => $request->schedule_id,
-            'scanned_by' => $id,
-            'is_late' => $late,
-            'time_in' => $time_in->format('Y-m-d H:i:s'), // Using $time_in from above
-        ]);
-
-        return response()->json([
-            'message' => 'Attendance marked successfully',
-            'attendance' => $attendance,
-            'student' => [
-                'student_number' => $student->student_number,
-                'image' => $student->image,
-                'first_name' => $student->first_name,
-                'last_name' => $student->last_name,
-            ],
-        ]);
     }
+
 
     // public function markAttendance(Request $request, $id)
     // {
