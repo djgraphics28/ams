@@ -23,7 +23,7 @@ class StudentProfileResource extends JsonResource
             'phone' => $this->phone,
             'birth_date' => $this->birth_date,
             'gender' => strtoupper($this->gender),
-            'image' => config('app.url').'/storage/'.$this->image ?? '',
+            'image' => $this->image ? config('app.url').'/storage/'.$this->image : '',
         ];
     }
 }
