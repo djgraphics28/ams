@@ -19,6 +19,7 @@ class StudentProfileResource extends JsonResource
             'student_number' => $this->student_number,
             'qr_code' => $this->qr_code,
             'full_name' => $this->full_name,
+            'course' => $this->course->name,
             'email' => $this->email,
             'phone' => $this->phone,
             'birth_date' => $this->birth_date,
