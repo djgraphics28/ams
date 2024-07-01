@@ -597,4 +597,14 @@ class InstructorController extends Controller
             'data' => $formattedStudents,
         ], 200);
     }
+
+    public function getAllStudents(Request $request)
+    {
+        // Filter students who do not have schedules
+        $students = Student::doesntHave('schedules')->get();
+
+        return response()->json([
+            'data' => StudentProfileResource::collection($students)
+        ]);
+    }
 }
