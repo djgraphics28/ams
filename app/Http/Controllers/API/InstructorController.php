@@ -598,10 +598,12 @@ class InstructorController extends Controller
         ], 200);
     }
 
-    public function getAllStudents(Request $request)
+    public function getAllStudents(Request $request, $schedId)
     {
-        // Filter students who do not have schedules
-        $students = Student::doesntHave('schedules')->get();
+        // Filter students who do not have a specific schedule
+        $students = Student::whereDoesntHave('schedules', function ($query) use ($schedId) {
+            $query->where('id', $schedId);
+        })->get();
 
         return response()->json([
             'data' => StudentProfileResource::collection($students)
