@@ -602,7 +602,7 @@ class InstructorController extends Controller
     {
         // Filter students who do not have a specific schedule
         $students = Student::whereDoesntHave('schedules', function ($query) use ($schedId) {
-            $query->where('id', $schedId);
+            $query->where('schedules.id', $schedId);
         })->get();
 
         return response()->json([
