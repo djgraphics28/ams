@@ -600,10 +600,26 @@ class InstructorController extends Controller
 
     public function getAllStudents(Request $request, $schedId)
     {
-        // Filter students who do not have a specific schedule
-        $students = Student::whereDoesntHave('schedules', function ($query) use ($schedId) {
+        // Start the query for students who do not have a specific schedule
+        $query = Student::whereDoesntHave('schedules', function ($query) use ($schedId) {
             $query->where('schedules.id', $schedId);
-        })->get();
+        });
+
+        // Add additional filters from request parameters if they exist
+        if ($request->has('first_name')) {
+            $query->where('first_name', 'like', '%' . $request->input('first_name') . '%');
+        }
+
+        if ($request->has('student_number')) {
+            $query->where('student_number', 'like', '%' . $request->input('student_number') . '%');
+        }
+
+        if ($request->has('last_name')) {
+            $query->where('last_name', 'like', '%' . $request->input('last_name') . '%');
+        }
+
+        // Execute the query and get the students
+        $students = $query->get();
 
         return response()->json([
             'data' => StudentProfileResource::collection($students)
