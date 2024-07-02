@@ -66,14 +66,14 @@ class StudentResource extends Resource
                 Forms\Components\TextInput::make('first_name')
                     ->required()
                     ->maxLength(255)
-                    ->alpha()->disableNumbers(),
+                    ->extraAttributes(['pattern' => '[A-Za-z]+', 'title' => 'Only alphabetic characters allowed']),
                 Forms\Components\TextInput::make('middle_name')
                     ->maxLength(255)
-                    ->alpha()->disableNumbers(),
+                    ->extraAttributes(['pattern' => '[A-Za-z]+', 'title' => 'Only alphabetic characters allowed']),
                 Forms\Components\TextInput::make('last_name')
                     ->required()
                     ->maxLength(255)
-                    ->alpha()->disableNumbers(),
+                    ->extraAttributes(['pattern' => '[A-Za-z]+', 'title' => 'Only alphabetic characters allowed']),
                 // Forms\Components\TextInput::make('ext_name')
                 //     ->maxLength(255),
                 Forms\Components\TextInput::make('email')
