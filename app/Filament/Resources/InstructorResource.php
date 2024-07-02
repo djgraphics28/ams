@@ -71,6 +71,8 @@ class InstructorResource extends Resource
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('phone')
+                    ->mask('999999999999')
+                    ->placeholder('630000000000')
                     ->tel()
                     ->rules('numeric')
                     ->maxLength(255),
