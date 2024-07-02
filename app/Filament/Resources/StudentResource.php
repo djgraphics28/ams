@@ -94,14 +94,14 @@ class StudentResource extends Resource
                     ->required(),
                 Forms\Components\TextInput::make('password')
                     ->label('Password'),
-                Repeater::make('student_subjects')
-                    ->relationship()
-                    ->schema([
-                        Forms\Components\Select::make('subject_id')
-                            ->relationship('subject', 'name')
-                            ->required(),
-                    ])
-                    ->columnSpanFull(),
+                // Repeater::make('student_subjects')
+                //     ->relationship()
+                //     ->schema([
+                //         Forms\Components\Select::make('subject_id')
+                //             ->relationship('subject', 'name')
+                //             ->required(),
+                //     ])
+                //     ->columnSpanFull(),
                 // ->hidden(),
 
                 Forms\Components\Section::make('Guardian Details')
@@ -189,7 +189,7 @@ class StudentResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\SchedulesRelationManager::class,
         ];
     }
 

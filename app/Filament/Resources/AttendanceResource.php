@@ -7,8 +7,11 @@ use Filament\Tables;
 use Filament\Forms\Form;
 use App\Models\Attendance;
 use Filament\Tables\Table;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Resources\Resource;
 use App\Models\AcademicYearSemester;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -74,6 +77,17 @@ class AttendanceResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('pdf')
+                ->label('PDF')
+                ->color('success')
+                ->icon('heroicon-s-download')
+                ->action(function (Model $record) {
+                    return response()->streamDownload(function () use ($record) {
+                        echo Pdf::loadHtml(
+                            Blade::render('pdf/attendance-pdf', ['record' => $record])
+                        )->stream();
+                    }, $record->id . '.pdf');
+                }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

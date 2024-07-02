@@ -1,0 +1,16 @@
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Student#</th>
+            <th>Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
