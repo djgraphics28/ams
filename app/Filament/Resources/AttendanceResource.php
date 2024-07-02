@@ -80,7 +80,6 @@ class AttendanceResource extends Resource
                 Tables\Actions\Action::make('pdf')
                 ->label('PDF')
                 ->color('success')
-                ->icon('heroicon-s-download')
                 ->action(function (Model $record) {
                     return response()->streamDownload(function () use ($record) {
                         echo Pdf::loadHtml(
