@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\AttendanceResource\Pages;
 use App\Filament\Resources\AttendanceResource\RelationManagers;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
+use Illuminate\Support\Collection;
 
 class AttendanceResource extends Resource
 {
@@ -78,22 +79,34 @@ class AttendanceResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('pdf')
-                ->label('PDF')
-                ->color('success')
-                ->action(function (Model $record) {
-                    return response()->streamDownload(function () use ($record) {
-                        echo Pdf::loadHtml(
-                            Blade::render('pdf/attendance-pdf', ['record' => $record])
-                        )->stream();
-                    }, $record->id . '.pdf');
-                }),
+                    ->label('Download PDF')
+                    ->color('success')
+                    ->action(function (Model $record) {
+                        return response()->streamDownload(function () use ($record) {
+                            echo Pdf::loadHtml(
+                                Blade::render('pdf.attendance-pdf', ['records' => [$record]])
+                            )->stream();
+                        }, $record->id . '.pdf');
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\BulkAction::make('downloadPdfs')
+                        ->label('Download PDFs')
+                        ->action(function (Collection $records) {
+                            return response()->streamDownload(function () use ($records) {
+                                echo Pdf::loadHtml(
+                                    Blade::render('pdf.attendance-pdf', ['records' => $records])
+                                )->stream();
+                            }, 'attendance.pdf');
+                        })
+                        ->color('primary'),
                 ]),
             ]);
     }
+
+
 
     public static function getRelations(): array
     {
