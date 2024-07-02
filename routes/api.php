@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PDFController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\StudentController;
@@ -59,4 +60,6 @@ Route::group(['prefix' => 'instructor'], function () {
     Route::get('/semesters', [InstructorController::class, 'getSemesters']);
 
     Route::resource('schedules', ScheduleController::class);
+
+    Route::get('/attendance-report', [PDFController::class, 'attendanceReport']);
 })->middleware('auth:sanctum');
