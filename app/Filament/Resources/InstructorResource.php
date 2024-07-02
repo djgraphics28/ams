@@ -52,18 +52,18 @@ class InstructorResource extends Resource
                 Forms\Components\TextInput::make('title')
                     ->required()
                     ->maxLength(255)
-                    ->alpha(),
+                    ->alpha()->disableNumbers(),
                 Forms\Components\TextInput::make('first_name')
                     ->required()
                     ->maxLength(255)
-                    ->alpha(),
+                    ->alpha()->disableNumbers(),
                 Forms\Components\TextInput::make('middle_name')
                     ->maxLength(255)
-                    ->alpha(),
+                    ->alpha()->disableNumbers(),
                 Forms\Components\TextInput::make('last_name')
                     ->required()
                     ->maxLength(255)
-                    ->alpha(),
+                    ->alpha()->disableNumbers(),
                 // Forms\Components\TextInput::make('ext_name')
                 //     ->maxLength(255),
                 Forms\Components\TextInput::make('email')
