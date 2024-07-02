@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\API;
 
 use Carbon\Carbon;
+use App\Models\Year;
 use App\Models\Enroll;
 use App\Models\Student;
 use App\Models\Schedule;
+use App\Models\Semester;
 use App\Models\Attendance;
 use App\Models\Instructor;
 use Illuminate\Http\Request;
@@ -624,5 +626,19 @@ class InstructorController extends Controller
         return response()->json([
             'data' => StudentProfileResource::collection($students)
         ]);
+    }
+
+    public function getSchoolYears()
+    {
+        $data = Year::all();
+        return response()->json($data);
+
+    }
+
+    public function getSemesters()
+    {
+        $data = Semester::all();
+        return response()->json($data);
+
     }
 }

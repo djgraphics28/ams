@@ -55,6 +55,8 @@ Route::group(['prefix' => 'instructor'], function () {
     Route::get('/schedule/{schedId}/all-students', [InstructorController::class, 'getAllStudents']);
 
     Route::get('/subjects', [SubjectController::class, 'index']);
+    Route::get('/school_years', [InstructorController::class, 'getSchoolYears']);
+    Route::get('/semesters', [InstructorController::class, 'getSemesters']);
 
     Route::resource('schedules', ScheduleController::class);
 })->middleware('auth:sanctum');
