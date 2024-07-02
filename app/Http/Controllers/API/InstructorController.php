@@ -321,7 +321,7 @@ class InstructorController extends Controller
     public function getScheduleStudentAttendances(Request $request, $schedId)
     {
         // Get the start and end date from the request, assuming they are provided as 'start_date' and 'end_date'
-        $startDate = $request->input('start_date');
+        $startDate = $request->input('start_date', now()->format('Y-m-d')); // Default to today's date
         $endDate = $request->input('end_date');
 
         // Query attendances based on schedule_id and optional date range
