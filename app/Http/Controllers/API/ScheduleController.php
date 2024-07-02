@@ -68,8 +68,8 @@ class ScheduleController extends Controller
         // Create a new Schedule instance and assign the validated data
         $schedule = new Schedule();
         $schedule->sched_code = $validatedData['sched_code'];
-        $schedule->start_time = $start;
-        $schedule->end_time = $end;
+        $schedule->start = $start;
+        $schedule->end = $end;
         $schedule->days = $validatedData['days'];
         $schedule->instructor_id = $validatedData['instructor_id'];
         $schedule->subject_id = $validatedData['subject_id'];
