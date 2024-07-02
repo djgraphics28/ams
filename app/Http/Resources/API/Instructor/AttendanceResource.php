@@ -28,7 +28,7 @@ class AttendanceResource extends JsonResource
             'schedule' => $this->schedule->sched_code ?? null,
             'student_name' => $this->student->full_name ?? null,
             'student_number' => $this->student->student_number ?? null,
-            'image' => config('app.url').'/storage/'.$this->student->image ?? null,
+            'image' => $this->student->image ? config('app.url').'/storage/'.$this->student->image : '',
             'course' => $this->student->course->name ?? null,
             'email' => $this->student->email ?? null,
             'start' => $start->format('h:i A'),
