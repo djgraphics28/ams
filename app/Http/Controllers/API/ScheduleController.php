@@ -103,8 +103,8 @@ class ScheduleController extends Controller
         // Validate the incoming request data
         $validatedData = $request->validate([
             'sched_code' => 'required|string|max:255',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i',
+            'start_time' => 'required',
+            'end_time' => 'required',
             'days' => 'required|array',
             'instructor_id' => 'required|integer|exists:instructors,id',
             'subject_id' => 'required|integer|exists:subjects,id',
@@ -112,13 +112,17 @@ class ScheduleController extends Controller
             'semester_id' => 'required|integer|exists:semesters,id',
         ]);
 
+        // Convert start_time and end_time to Carbon instances
+        $start = \Carbon\Carbon::parse($validatedData['start_time']);
+        $end = \Carbon\Carbon::parse($validatedData['end_time']);
+
         // Find the Schedule instance by its ID
         $schedule = Schedule::findOrFail($id);
 
         // Update the schedule instance with validated data
         $schedule->sched_code = $validatedData['sched_code'];
-        $schedule->start = $validatedData['start_time'];
-        $schedule->end = $validatedData['end_time'];
+        $schedule->start = $start;
+        $schedule->end = $end;
         $schedule->days = $validatedData['days'];
         $schedule->instructor_id = $validatedData['instructor_id'];
         $schedule->subject_id = $validatedData['subject_id'];
