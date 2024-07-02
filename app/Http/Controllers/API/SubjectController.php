@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
+use App\Models\Subject;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class SubjectController extends Controller
 {
@@ -12,7 +13,8 @@ class SubjectController extends Controller
      */
     public function index()
     {
-        //
+        $data = Subject::all();
+        return response()->json($data);
     }
 
     /**

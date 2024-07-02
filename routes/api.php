@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\StudentController;
+use App\Http\Controllers\API\SubjectController;
 use App\Http\Controllers\StudentAuthController;
 use App\Http\Controllers\API\ScheduleController;
 use App\Http\Controllers\API\InstructorController;
@@ -52,6 +53,8 @@ Route::group(['prefix' => 'instructor'], function () {
     Route::get('/schedule/{id}/available-enrolled', [InstructorController::class, 'getAvailableEnrolledStudents']);
 
     Route::get('/schedule/{schedId}/all-students', [InstructorController::class, 'getAllStudents']);
+
+    Route::get('/subjects', [SubjectController::class, 'index']);
 
     Route::resource('schedules', ScheduleController::class);
 })->middleware('auth:sanctum');
