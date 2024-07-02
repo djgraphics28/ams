@@ -51,15 +51,19 @@ class InstructorResource extends Resource
                     ->default(Uuid::uuid4()->toString()),
                 Forms\Components\TextInput::make('title')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->rules('alpha'),
                 Forms\Components\TextInput::make('first_name')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->rules('alpha'),
                 Forms\Components\TextInput::make('middle_name')
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->rules('alpha'),
                 Forms\Components\TextInput::make('last_name')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->rules('alpha'),
                 // Forms\Components\TextInput::make('ext_name')
                 //     ->maxLength(255),
                 Forms\Components\TextInput::make('email')
@@ -68,6 +72,7 @@ class InstructorResource extends Resource
                     ->maxLength(255),
                 Forms\Components\TextInput::make('phone')
                     ->tel()
+                    ->rules('numeric')
                     ->maxLength(255),
                 Forms\Components\DatePicker::make('birth_date'),
                 Forms\Components\Select::make('gender')
