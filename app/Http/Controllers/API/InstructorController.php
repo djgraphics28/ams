@@ -108,7 +108,7 @@ class InstructorController extends Controller
                 $late_minutes = $time_in->diffInMinutes($start_time, false);
 
                 // Check if time_in is later than start_time
-                if ($late_minutes > 0) {
+                if ($late_minutes > 15) {
                     $late = true;
 
                     // Check if there are guardian details and send SMS if late
