@@ -102,7 +102,7 @@ class InstructorController extends Controller
 
             if ($schedule) {
                 // Parse the start time into a Carbon instance with the correct format and time zone
-                $start_time = Carbon::parse($schedule->start_time, 'Asia/Manila');
+                $start_time = Carbon::parse($schedule->start);
 
                 // Extract the time portions and convert them to total minutes since the start of the day
                 $start_time_minutes = $start_time->hour * 60 + $start_time->minute;
