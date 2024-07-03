@@ -105,7 +105,7 @@ class InstructorController extends Controller
                 $start_time = Carbon::parse($schedule->start_time, 'Asia/Manila');
 
                 // Check if time_in is later than start_time
-                if ($time_in->greaterThan($start_time)) {
+                if ($start_time->greaterThan($time_in)) {
                     $late = true;
 
                     // Calculate the difference in minutes
