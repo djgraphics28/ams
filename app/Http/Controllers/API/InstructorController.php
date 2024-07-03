@@ -167,6 +167,7 @@ class InstructorController extends Controller
                 'attendance' => $attendance,
 
                 'start_time' => $start_time,
+                'late_in_minutes' => $late_minutes,
                 'student' => [
                     'student_number' => $student->student_number,
                     'image' => $student->image,
