@@ -101,31 +101,31 @@ class InstructorController extends Controller
             $schedule = Schedule::find($request->schedule_id);
 
             if ($schedule) {
-                // Extract time portion from start_time and time_in, and convert to epoch time
-                $start_time_epoch = Carbon::createFromFormat('H:i:s', Carbon::parse($schedule->start_time)->format('H:i:s'), 'Asia/Manila')->timestamp;
-                $time_in_epoch = Carbon::createFromFormat('H:i:s', $time_in->format('H:i:s'), 'Asia/Manila')->timestamp;
-
-                // Calculate the difference in minutes between time_in and start_time
-                $late_minutes = ($time_in_epoch - $start_time_epoch) / 60;
+                // Parse the start time into a Carbon instance
+                $start_time = Carbon::parse($schedule->start_time, 'Asia/Manila');
 
                 // Check if time_in is later than start_time
-                if ($late_minutes > 15) {
+                if ($time_in->greaterThan($start_time)) {
                     $late = true;
 
-                    // Check if there are guardian details and send SMS if late
-                    if (!is_null($student->parent_name) && !is_null($student->parent_number)) {
-                        // $text = new \Vonage\SMS\Message\SMS(env('VONAGE_SMS_FROM'), '+'.$student->parent_number, 'Hi Parent, Your child, ' . $student->full_name . ', has been late for their class today. Please remind them to log in earlier. Thank you!');
-                        // Vonage::sms()->send($text);
-                        $basic = new \Vonage\Client\Credentials\Basic("9af65d3f", "Ny92OinIz6PjfOnc");
-                        $client = new \Vonage\Client($basic);
+                    // Calculate the difference in minutes
+                    $late_minutes = $time_in->diffInMinutes($start_time);
 
-                        $client->sms()->send(
-                            new \Vonage\SMS\Message\SMS(
-                                "+" . $student->parent_number,
-                                'AMS',
-                                'Hi Parent, Your child, ' . $student->full_name . ', has been late for their class today. Please remind them to log in earlier. Thank you!'
-                            )
-                        );
+                    // Check if the late time is greater than 15 minutes
+                    if ($late_minutes > 15) {
+                        // Check if there are guardian details and send SMS if late
+                        if (!is_null($student->parent_name) && !is_null($student->parent_number)) {
+                            $basic = new \Vonage\Client\Credentials\Basic("9af65d3f", "4JRcdZ9H1gN9GcFg");
+                            $client = new \Vonage\Client($basic);
+
+                            $client->sms()->send(
+                                new \Vonage\SMS\Message\SMS(
+                                    "+" . $student->parent_number,
+                                    'AMS',
+                                    'Hi Parent, Your child, ' . $student->full_name . ', has been late for their class today. Please remind them to log in earlier. Thank you!'
+                                )
+                            );
+                        }
                     }
                 }
             }
@@ -166,7 +166,6 @@ class InstructorController extends Controller
             return response()->json([
                 'message' => 'Attendance marked successfully',
                 'attendance' => $attendance,
-                'lateinminutes' => $late_minutes,
                 'student' => [
                     'student_number' => $student->student_number,
                     'image' => $student->image,
@@ -185,6 +184,7 @@ class InstructorController extends Controller
             ], 500);
         }
     }
+
 
 
     // public function markAttendance(Request $request, $id)
