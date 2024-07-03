@@ -168,6 +168,8 @@ class InstructorController extends Controller
             return response()->json([
                 'message' => 'Attendance marked successfully',
                 'attendance' => $attendance,
+                'startTime' => $start_time_minutes,
+                'timeIn' => $time_in_minutes,
                 'student' => [
                     'student_number' => $student->student_number,
                     'image' => $student->image,
