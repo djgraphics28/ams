@@ -101,11 +101,14 @@ class InstructorController extends Controller
             $schedule = Schedule::find($request->schedule_id);
 
             if ($schedule) {
-                // Parse the start time into a Carbon instance
-                $start_time = Carbon::parse($schedule->start_time, 'Asia/Manila');
+                // Extract time portion from start_time
+                $start_time = Carbon::createFromFormat('H:i:s', Carbon::parse($schedule->start_time)->format('H:i:s'), 'Asia/Manila');
+
+                // Extract time portion from time_in
+                $time_in_time = Carbon::createFromFormat('H:i:s', $time_in->format('H:i:s'), 'Asia/Manila');
 
                 // Calculate the difference in minutes between time_in and start_time
-                $late_minutes = $time_in->diffInMinutes($start_time, false);
+                $late_minutes = $time_in_time->diffInMinutes($start_time, false);
 
                 // Check if time_in is later than start_time
                 if ($late_minutes > 15) {
@@ -165,9 +168,6 @@ class InstructorController extends Controller
             return response()->json([
                 'message' => 'Attendance marked successfully',
                 'attendance' => $attendance,
-
-                'start_time' => $start_time,
-                'late_in_minutes' => $late_minutes,
                 'student' => [
                     'student_number' => $student->student_number,
                     'image' => $student->image,
