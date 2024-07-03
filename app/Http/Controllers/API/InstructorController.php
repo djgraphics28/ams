@@ -104,8 +104,11 @@ class InstructorController extends Controller
                 // Parse the start time into a Carbon instance
                 $start_time = Carbon::parse($schedule->start_time, 'Asia/Manila');
 
+                // Calculate the difference in minutes between time_in and start_time
+                $late_minutes = $time_in->diffInMinutes($start_time, false);
+
                 // Check if time_in is later than start_time
-                if ($time_in->greaterThan($start_time)) {
+                if ($late_minutes > 0) {
                     $late = true;
 
                     // Check if there are guardian details and send SMS if late
