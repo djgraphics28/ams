@@ -101,14 +101,12 @@ class InstructorController extends Controller
             $schedule = Schedule::find($request->schedule_id);
 
             if ($schedule) {
-                // Extract time portion from start_time
-                $start_time = Carbon::createFromFormat('H:i:s', Carbon::parse($schedule->start_time)->format('H:i:s'), 'Asia/Manila');
-
-                // Extract time portion from time_in
-                $time_in_time = Carbon::createFromFormat('H:i:s', $time_in->format('H:i:s'), 'Asia/Manila');
+                // Extract time portion from start_time and time_in, and convert to epoch time
+                $start_time_epoch = Carbon::createFromFormat('H:i:s', Carbon::parse($schedule->start_time)->format('H:i:s'), 'Asia/Manila')->timestamp;
+                $time_in_epoch = Carbon::createFromFormat('H:i:s', $time_in->format('H:i:s'), 'Asia/Manila')->timestamp;
 
                 // Calculate the difference in minutes between time_in and start_time
-                $late_minutes = $time_in_time->diffInMinutes($start_time, false);
+                $late_minutes = ($time_in_epoch - $start_time_epoch) / 60;
 
                 // Check if time_in is later than start_time
                 if ($late_minutes > 15) {
