@@ -101,31 +101,33 @@ class InstructorController extends Controller
             $schedule = Schedule::find($request->schedule_id);
 
             if ($schedule) {
-                // Parse the start time into a Carbon instance
+                // Parse the start time into a Carbon instance with the correct format and time zone
                 $start_time = Carbon::parse($schedule->start_time, 'Asia/Manila');
 
+                // Extract the time portions and convert them to total minutes since the start of the day
+                $start_time_minutes = $start_time->hour * 60 + $start_time->minute;
+                $time_in_minutes = $time_in->hour * 60 + $time_in->minute;
+
+                // Calculate the difference in minutes between time_in and start_time
+                $late_minutes = $time_in_minutes - $start_time_minutes;
+
+
                 // Check if time_in is later than start_time
-                if ($start_time->greaterThan($time_in)) {
+                if ($late_minutes > 15) {
                     $late = true;
 
-                    // Calculate the difference in minutes
-                    $late_minutes = $time_in->diffInMinutes($start_time);
+                    // Check if there are guardian details and send SMS if late
+                    if (!is_null($student->parent_name) && !is_null($student->parent_number)) {
+                        $basic = new \Vonage\Client\Credentials\Basic("9af65d3f", "4JRcdZ9H1gN9GcFg");
+                        $client = new \Vonage\Client($basic);
 
-                    // Check if the late time is greater than 15 minutes
-                    if ($late_minutes > 15) {
-                        // Check if there are guardian details and send SMS if late
-                        if (!is_null($student->parent_name) && !is_null($student->parent_number)) {
-                            $basic = new \Vonage\Client\Credentials\Basic("9af65d3f", "4JRcdZ9H1gN9GcFg");
-                            $client = new \Vonage\Client($basic);
-
-                            $client->sms()->send(
-                                new \Vonage\SMS\Message\SMS(
-                                    "+" . $student->parent_number,
-                                    'AMS',
-                                    'Hi Parent, Your child, ' . $student->full_name . ', has been late for their class today. Please remind them to log in earlier. Thank you!'
-                                )
-                            );
-                        }
+                        $client->sms()->send(
+                            new \Vonage\SMS\Message\SMS(
+                                "+" . $student->parent_number,
+                                'AMS',
+                                'Hi Parent, Your child, ' . $student->full_name . ', has been late for their class today. Please remind them to log in earlier. Thank you!'
+                            )
+                        );
                     }
                 }
             }
@@ -166,7 +168,6 @@ class InstructorController extends Controller
             return response()->json([
                 'message' => 'Attendance marked successfully',
                 'attendance' => $attendance,
-                'lateinminutes' => $late_minutes,
                 'student' => [
                     'student_number' => $student->student_number,
                     'image' => $student->image,
@@ -185,7 +186,6 @@ class InstructorController extends Controller
             ], 500);
         }
     }
-
 
 
     // public function markAttendance(Request $request, $id)
