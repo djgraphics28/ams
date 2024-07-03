@@ -74,8 +74,7 @@ class InstructorResource extends Resource
                     ->mask('999999999999')
                     ->placeholder('630000000000')
                     ->tel()
-                    ->rules('numeric')
-                    ->maxLength(255),
+                    ->rules('numeric'),
                 Forms\Components\DatePicker::make('birth_date'),
                 Forms\Components\Select::make('gender')
                     ->options([
