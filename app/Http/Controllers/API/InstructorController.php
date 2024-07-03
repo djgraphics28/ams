@@ -154,6 +154,7 @@ class InstructorController extends Controller
                         'schedule_id' => $request->schedule_id,
                         'scanned_by' => $id,
                         'is_late' => $late,
+                        'start_time' => $start_time,
                         'time_in' => $time_in->format('Y-m-d H:i:s'),
                     ]
                 );
