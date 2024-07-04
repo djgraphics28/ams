@@ -656,8 +656,9 @@ class InstructorController extends Controller
 
     }
 
-    public function export(Request $request, $scheduleId)
+    public function export(Request $request)
     {
+        $scheduleId = $request->input('schedule_id');
         $date = $request->input('date');
         return Excel::download(new AttendanceExport($scheduleId, $date), 'attendance.xlsx');
     }
