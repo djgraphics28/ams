@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Jobs\LateSmsNotificationJob;
 use Carbon\Carbon;
 use App\Models\Year;
 use App\Models\Enroll;
@@ -62,7 +61,7 @@ class InstructorController extends Controller
     {
         // Validate the request data
         $request->validate([
-            'schedule_id' => 'required|exists:schedules,id',
+            'schedule_id' => 'required',
             'qr_code' => [
                 'required',
                 'exists:students,qr_code',
@@ -94,11 +93,28 @@ class InstructorController extends Controller
                 ], 404);
             }
 
-            // Initialize current time and date
+            // Initialize late flag and current time
+            $late = false;
             $time_in = Carbon::now('Asia/Manila');
-            $currentDate = $time_in->toDateString();
+
+            // Retrieve the schedule based on the provided schedule_id
+            $schedule = Schedule::find($request->schedule_id);
+
+            if ($schedule) {
+                // Parse the start time into a Carbon instance with the correct format and time zone
+                $start_time = Carbon::parse($schedule->start);
+
+                // Extract the time portions and convert them to total minutes since the start of the day
+                $start_time_minutes = $start_time->hour * 60 + $start_time->minute;
+                $time_in_minutes = $time_in->hour * 60 + $time_in->minute;
+
+                // Calculate the difference in minutes between time_in and start_time
+                $late_minutes = $time_in_minutes - $start_time_minutes;
+
+            }
 
             // Check if the student has already logged in today for this schedule
+            $currentDate = now()->toDateString();
             $check = Attendance::where('schedule_id', $request->schedule_id)
                 ->where('student_id', $student->id)
                 ->whereDate('time_in', $currentDate)
@@ -115,41 +131,37 @@ class InstructorController extends Controller
                         'last_name' => $student->last_name,
                     ],
                 ], 409); // 409 Conflict status code
-            }
-
-            // Retrieve the schedule based on the provided schedule_id
-            $schedule = Schedule::find($request->schedule_id);
-
-            // Initialize late flag
-            $late = false;
-
-            if ($schedule) {
-                // Parse the start time into a Carbon instance with the correct format and time zone
-                $start_time = Carbon::parse($schedule->start);
-
-                // Calculate the difference in minutes between time_in and start_time
-                $late_minutes = $time_in->diffInMinutes($start_time, false);
-
-                // Check if time_in is later than start_time
-                if ($late_minutes > 15) {
+            } else {
+                 // Check if time_in is later than start_time
+                 if ($late_minutes > 15) {
                     $late = true;
 
                     // Check if there are guardian details and send SMS if late
                     if (!is_null($student->parent_name) && !is_null($student->parent_number)) {
-                       LateSmsNotificationJob::dispatch($student->parent_number, $student->full_name);
+                        $basic = new \Vonage\Client\Credentials\Basic("9af65d3f", "4JRcdZ9H1gN9GcFg");
+                        $client = new \Vonage\Client($basic);
+
+                        $client->sms()->send(
+                            new \Vonage\SMS\Message\SMS(
+                                "+" . $student->parent_number,
+                                'AMS',
+                                'Hi Parent, Your child, ' . $student->full_name . ', has been late for their class today. Please remind them to log in earlier. Thank you!'
+                            )
+                        );
                     }
                 }
-            }
 
-            // Create the attendance record
-            $attendance = Attendance::create([
-                'student_id' => $student->id,
-                'schedule_id' => $request->schedule_id,
-                'scanned_by' => $id,
-                'is_late' => $late,
-                'time_in' => $time_in->format('Y-m-d H:i:s'),
-                'time_in_date' => $time_in->format('Y-m-d'),
-            ]);
+                $attendance = Attendance::create(
+                    [
+                        'student_id' => $student->id,
+                        'schedule_id' => $request->schedule_id,
+                        'scanned_by' => $id,
+                        'is_late' => $late,
+                        'time_in' => $time_in->format('Y-m-d H:i:s'),
+                        'time_in_date' => $time_in->format('Y-m-d'),
+                    ]
+                );
+            }
 
             // Commit the transaction
             DB::commit();
@@ -157,6 +169,8 @@ class InstructorController extends Controller
             return response()->json([
                 'message' => 'Attendance marked successfully',
                 'attendance' => $attendance,
+                'startTime' => $start_time_minutes,
+                'timeIn' => $time_in_minutes,
                 'student' => [
                     'student_number' => $student->student_number,
                     'image' => $student->image,
@@ -164,16 +178,9 @@ class InstructorController extends Controller
                     'last_name' => $student->last_name,
                 ],
             ]);
-        } catch (\Illuminate\Database\QueryException $e) {
+        } catch (\Exception $e) {
             // Rollback the transaction on error
             DB::rollBack();
-
-            // Check for duplicate entry error
-            if ($e->getCode() == 23000) { // 23000 is the SQL state code for integrity constraint violation
-                return response()->json([
-                    'message' => 'Already Logged in!',
-                ], 409); // 409 Conflict status code
-            }
 
             // Log the error or return an appropriate response
             return response()->json([
@@ -182,6 +189,114 @@ class InstructorController extends Controller
             ], 500);
         }
     }
+
+
+    // public function markAttendance(Request $request, $id)
+    // {
+    //     $request->validate([
+    //         'schedule_id' => 'required',
+    //         'qr_code' => [
+    //             'required',
+    //             'exists:students,qr_code',
+    //             function ($attribute, $value, $fail) {
+    //                 if (strpos($value, 'http://') === 0) {
+    //                     $fail('The ' . $attribute . ' must not start with http://.');
+    //                 }
+    //             },
+    //         ],
+    //     ]);
+
+    //     $student = Student::where('qr_code', $request->qr_code)->first();
+
+    //     if (!$student) {
+    //         return response()->json([
+    //             'message' => 'Invalid Student!',
+    //         ], 404);
+    //     }
+
+    //     //check if the students is enrolled to this schedule
+    //     if ($student->schedules()->where('schedule_id', $request->schedule_id)->doesntExist()) {
+    //         return response()->json([
+    //             'message' => 'Student is not enrolled to this schedule!',
+    //         ], 404);
+    //     }
+
+    //     $currentDate = now()->toDateString();
+
+    //     $check = Attendance::where('schedule_id', $request->schedule_id)
+    //         ->where('student_id', $student->id)
+    //         ->whereDate('time_in', $currentDate)
+    //         ->first();
+
+    //     if ($check) {
+    //         return response()->json([
+    //             'message' => 'Already Logged in!',
+    //             'attendance' => $check,
+    //             'student' => [
+    //                 'student_number' => $student->student_number,
+    //                 'image' => $student->image,
+    //                 'first_name' => $student->first_name,
+    //                 'last_name' => $student->last_name,
+    //             ],
+    //         ], 409);
+    //     }
+
+
+    //     $late = false;
+
+    //     // get start time
+    //     $schedule = Schedule::find($request->schedule_id);
+
+    //     // Set initial late flag to false
+    //     $late = false;
+
+    //     // Retrieve the schedule based on the provided schedule_id
+    //     $schedule = Schedule::find($request->schedule_id);
+
+    //     if ($schedule) {
+    //         // Parse the start time and current time into Carbon instances
+    //         $start_time = Carbon::parse($schedule->start_time, 'Asia/Manila');
+    //         $time_in = Carbon::now('Asia/Manila');
+
+    //         // Check if time_in is later than start_time
+    //         if ($time_in->greaterThan($start_time)) {
+    //             $late = true;
+    //         }
+
+    //         // Check if there are guardian details
+    //         if (!is_null($student->parent_name) && !is_null($student->parent_number)) {
+
+    //             $basic = new \Vonage\Client\Credentials\Basic("9af65d3f", "4JRcdZ9H1gN9GcFg");
+    //             $client = new \Vonage\Client($basic);
+
+    //             $client->sms()->send(
+    //                 new \Vonage\SMS\Message\SMS("+" . $student->parent_number, 'AMS', 'Hi Parent, Your child,' . $student->full_name . ',  has been late for their class today. Please remind them to log in earlier. Thank you!')
+    //             );
+    //         }
+    //     }
+
+    //     // Create a new Attendance record
+    //     $attendance = Attendance::create([
+    //         'student_id' => $student->id,
+    //         'schedule_id' => $request->schedule_id,
+    //         'scanned_by' => $id,
+    //         'is_late' => $late,
+    //         'time_in' => Carbon::parse($time_in, 'Asia/Manila')->format('Y-m-d H:i:s'),
+    //     ]);
+
+
+
+    //     return response()->json([
+    //         'message' => 'Attendance marked successfully',
+    //         'attendance' => $attendance,
+    //         'student' => [
+    //             'student_number' => $student->student_number,
+    //             'image' => $student->image,
+    //             'first_name' => $student->first_name,
+    //             'last_name' => $student->last_name,
+    //         ],
+    //     ]);
+    // }
 
     public function getSchoolYear(Request $request)
     {
