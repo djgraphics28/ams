@@ -477,8 +477,9 @@ class InstructorController extends Controller
         ]);
     }
 
-    public function removeStudentFromSchedule($schedId, $studentId)
+    public function removeStudentFromSchedule(Request $request, $schedId)
     {
+        $studentId = $request->input('student_id');
         $student = Student::find($studentId);
 
         if (!$student) {
