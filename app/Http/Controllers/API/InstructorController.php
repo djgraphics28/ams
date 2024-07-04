@@ -14,12 +14,14 @@ use Illuminate\Http\Request;
 use App\Models\EnrollSubject;
 use App\Mail\EmailNotification;
 use App\Models\MessageTemplate;
+use App\Exports\AttendanceExport;
 use Vonage\Laravel\Facade\Vonage;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\AcademicYearSemester;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Resources\API\ScheduleInfoResource;
 use App\Http\Resources\API\StudentProfileResource;
 use App\Http\Resources\API\InstructorProfileResource;
@@ -652,5 +654,11 @@ class InstructorController extends Controller
         $data = Semester::all();
         return response()->json($data);
 
+    }
+
+    public function export(Request $request, $scheduleId)
+    {
+        $date = $request->input('date');
+        return Excel::download(new AttendanceExport($scheduleId, $date), 'attendance.xlsx');
     }
 }

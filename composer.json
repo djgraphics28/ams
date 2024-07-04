@@ -15,6 +15,7 @@
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
+        "maatwebsite/excel": "^3.1",
         "malzariey/filament-daterangepicker-filter": "^2.7",
         "ramsey/uuid": "^4.7",
         "simplesoftwareio/simple-qrcode": "^4.2",

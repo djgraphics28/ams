@@ -62,4 +62,5 @@ Route::group(['prefix' => 'instructor'], function () {
     Route::resource('schedules', ScheduleController::class);
 
     Route::get('/attendance-report', [PDFController::class, 'attendanceReport']);
+    Route::post('/attendance-export-excel', [InstructorController::class, 'export']);
 })->middleware('auth:sanctum');
