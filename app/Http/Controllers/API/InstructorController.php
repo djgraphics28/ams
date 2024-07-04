@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Jobs\LateSmsNotificationJob;
 use Carbon\Carbon;
 use App\Models\Year;
 use App\Models\Enroll;
@@ -135,16 +136,7 @@ class InstructorController extends Controller
 
                     // Check if there are guardian details and send SMS if late
                     if (!is_null($student->parent_name) && !is_null($student->parent_number)) {
-                        $basic = new \Vonage\Client\Credentials\Basic("9af65d3f", "4JRcdZ9H1gN9GcFg");
-                        $client = new \Vonage\Client($basic);
-
-                        $client->sms()->send(
-                            new \Vonage\SMS\Message\SMS(
-                                "+" . $student->parent_number,
-                                'AMS',
-                                'Hi Parent, Your child, ' . $student->full_name . ', has been late for their class today. Please remind them to log in earlier. Thank you!'
-                            )
-                        );
+                       LateSmsNotificationJob::dispatch($student->parent_number, $student->full_name);
                     }
                 }
             }
