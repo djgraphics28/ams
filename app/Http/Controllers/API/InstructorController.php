@@ -189,138 +189,138 @@ class InstructorController extends Controller
             ], 500);
         }
     }
-    public function markAttendance(Request $request, $id)
-    {
-        // Validate the request data
-        $request->validate([
-            'schedule_id' => 'required',
-            'qr_code' => [
-                'required',
-                'exists:students,qr_code',
-                function ($attribute, $value, $fail) {
-                    if (strpos($value, 'http://') === 0) {
-                        $fail('The ' . $attribute . ' must not start with http://.');
-                    }
-                },
-            ],
-        ]);
+    // public function markAttendance(Request $request, $id)
+    // {
+    //     // Validate the request data
+    //     $request->validate([
+    //         'schedule_id' => 'required',
+    //         'qr_code' => [
+    //             'required',
+    //             'exists:students,qr_code',
+    //             function ($attribute, $value, $fail) {
+    //                 if (strpos($value, 'http://') === 0) {
+    //                     $fail('The ' . $attribute . ' must not start with http://.');
+    //                 }
+    //             },
+    //         ],
+    //     ]);
 
-        try {
-            // Begin a database transaction
-            DB::beginTransaction();
+    //     try {
+    //         // Begin a database transaction
+    //         DB::beginTransaction();
 
-            // Retrieve the student based on the QR code
-            $student = Student::where('qr_code', $request->qr_code)->first();
+    //         // Retrieve the student based on the QR code
+    //         $student = Student::where('qr_code', $request->qr_code)->first();
 
-            if (!$student) {
-                return response()->json([
-                    'message' => 'Invalid Student!',
-                ], 404);
-            }
+    //         if (!$student) {
+    //             return response()->json([
+    //                 'message' => 'Invalid Student!',
+    //             ], 404);
+    //         }
 
-            // Check if the student is enrolled in this schedule
-            if (!$student->schedules()->where('schedule_id', $request->schedule_id)->exists()) {
-                return response()->json([
-                    'message' => 'Student is not enrolled in this schedule!',
-                ], 404);
-            }
+    //         // Check if the student is enrolled in this schedule
+    //         if (!$student->schedules()->where('schedule_id', $request->schedule_id)->exists()) {
+    //             return response()->json([
+    //                 'message' => 'Student is not enrolled in this schedule!',
+    //             ], 404);
+    //         }
 
-            // Initialize late flag and current time
-            $late = false;
-            $time_in = Carbon::now('Asia/Manila');
+    //         // Initialize late flag and current time
+    //         $late = false;
+    //         $time_in = Carbon::now('Asia/Manila');
 
-            // Retrieve the schedule based on the provided schedule_id
-            $schedule = Schedule::find($request->schedule_id);
+    //         // Retrieve the schedule based on the provided schedule_id
+    //         $schedule = Schedule::find($request->schedule_id);
 
-            if ($schedule) {
-                // Parse the start time into a Carbon instance with the correct format and time zone
-                $start_time = Carbon::parse($schedule->start);
+    //         if ($schedule) {
+    //             // Parse the start time into a Carbon instance with the correct format and time zone
+    //             $start_time = Carbon::parse($schedule->start);
 
-                // Extract the time portions and convert them to total minutes since the start of the day
-                $start_time_minutes = $start_time->hour * 60 + $start_time->minute;
-                $time_in_minutes = $time_in->hour * 60 + $time_in->minute;
+    //             // Extract the time portions and convert them to total minutes since the start of the day
+    //             $start_time_minutes = $start_time->hour * 60 + $start_time->minute;
+    //             $time_in_minutes = $time_in->hour * 60 + $time_in->minute;
 
-                // Calculate the difference in minutes between time_in and start_time
-                $late_minutes = $time_in_minutes - $start_time_minutes;
+    //             // Calculate the difference in minutes between time_in and start_time
+    //             $late_minutes = $time_in_minutes - $start_time_minutes;
 
-            }
+    //         }
 
-            // Check if the student has already logged in today for this schedule
-            $currentDate = now()->toDateString();
-            $check = Attendance::where('schedule_id', $request->schedule_id)
-                ->where('student_id', $student->id)
-                ->whereDate('time_in', $currentDate)
-                ->exists();
+    //         // Check if the student has already logged in today for this schedule
+    //         $currentDate = now()->toDateString();
+    //         $check = Attendance::where('schedule_id', $request->schedule_id)
+    //             ->where('student_id', $student->id)
+    //             ->whereDate('time_in', $currentDate)
+    //             ->exists();
 
-            // If already logged in today, return response
-            if ($check) {
-                return response()->json([
-                    'message' => 'Already Logged in!',
-                    'student' => [
-                        'student_number' => $student->student_number,
-                        'image' => $student->image,
-                        'first_name' => $student->first_name,
-                        'last_name' => $student->last_name,
-                    ],
-                ], 409); // 409 Conflict status code
-            } else {
-                 // Check if time_in is later than start_time
-                 if ($late_minutes > 15) {
-                    $late = true;
+    //         // If already logged in today, return response
+    //         if ($check) {
+    //             return response()->json([
+    //                 'message' => 'Already Logged in!',
+    //                 'student' => [
+    //                     'student_number' => $student->student_number,
+    //                     'image' => $student->image,
+    //                     'first_name' => $student->first_name,
+    //                     'last_name' => $student->last_name,
+    //                 ],
+    //             ], 409); // 409 Conflict status code
+    //         } else {
+    //              // Check if time_in is later than start_time
+    //              if ($late_minutes > 15) {
+    //                 $late = true;
 
-                    // Check if there are guardian details and send SMS if late
-                    if (!is_null($student->parent_name) && !is_null($student->parent_number)) {
-                        $basic = new \Vonage\Client\Credentials\Basic("9af65d3f", "4JRcdZ9H1gN9GcFg");
-                        $client = new \Vonage\Client($basic);
+    //                 // Check if there are guardian details and send SMS if late
+    //                 if (!is_null($student->parent_name) && !is_null($student->parent_number)) {
+    //                     $basic = new \Vonage\Client\Credentials\Basic("9af65d3f", "4JRcdZ9H1gN9GcFg");
+    //                     $client = new \Vonage\Client($basic);
 
-                        $client->sms()->send(
-                            new \Vonage\SMS\Message\SMS(
-                                "+" . $student->parent_number,
-                                'AMS',
-                                'Hi Parent, Your child, ' . $student->full_name . ', has been late for their class today. Please remind them to log in earlier. Thank you!'
-                            )
-                        );
-                    }
-                }
+    //                     $client->sms()->send(
+    //                         new \Vonage\SMS\Message\SMS(
+    //                             "+" . $student->parent_number,
+    //                             'AMS',
+    //                             'Hi Parent, Your child, ' . $student->full_name . ', has been late for their class today. Please remind them to log in earlier. Thank you!'
+    //                         )
+    //                     );
+    //                 }
+    //             }
 
-                $attendance = Attendance::create(
-                    [
-                        'student_id' => $student->id,
-                        'schedule_id' => $request->schedule_id,
-                        'scanned_by' => $id,
-                        'is_late' => $late,
-                        'time_in' => $time_in->format('Y-m-d H:i:s'),
-                    ]
-                );
-                sleep(3);
-            }
+    //             $attendance = Attendance::create(
+    //                 [
+    //                     'student_id' => $student->id,
+    //                     'schedule_id' => $request->schedule_id,
+    //                     'scanned_by' => $id,
+    //                     'is_late' => $late,
+    //                     'time_in' => $time_in->format('Y-m-d H:i:s'),
+    //                 ]
+    //             );
+    //             sleep(3);
+    //         }
 
-            // Commit the transaction
-            DB::commit();
+    //         // Commit the transaction
+    //         DB::commit();
 
-            return response()->json([
-                'message' => 'Attendance marked successfully',
-                'attendance' => $attendance,
-                'startTime' => $start_time_minutes,
-                'timeIn' => $time_in_minutes,
-                'student' => [
-                    'student_number' => $student->student_number,
-                    'image' => $student->image,
-                    'first_name' => $student->first_name,
-                    'last_name' => $student->last_name,
-                ],
-            ]);
-        } catch (\Exception $e) {
-            // Rollback the transaction on error
-            DB::rollBack();
+    //         return response()->json([
+    //             'message' => 'Attendance marked successfully',
+    //             'attendance' => $attendance,
+    //             'startTime' => $start_time_minutes,
+    //             'timeIn' => $time_in_minutes,
+    //             'student' => [
+    //                 'student_number' => $student->student_number,
+    //                 'image' => $student->image,
+    //                 'first_name' => $student->first_name,
+    //                 'last_name' => $student->last_name,
+    //             ],
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         // Rollback the transaction on error
+    //         DB::rollBack();
 
-            // Log the error or return an appropriate response
-            return response()->json([
-                'message' => 'Failed to mark attendance. Please try again later.',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
-    }
+    //         // Log the error or return an appropriate response
+    //         return response()->json([
+    //             'message' => 'Failed to mark attendance. Please try again later.',
+    //             'error' => $e->getMessage(),
+    //         ], 500);
+    //     }
+    // }
 
 
     // public function markAttendance(Request $request, $id)
