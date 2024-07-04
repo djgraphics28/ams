@@ -111,25 +111,6 @@ class InstructorController extends Controller
                 // Calculate the difference in minutes between time_in and start_time
                 $late_minutes = $time_in_minutes - $start_time_minutes;
 
-
-                // Check if time_in is later than start_time
-                if ($late_minutes > 15) {
-                    $late = true;
-
-                    // Check if there are guardian details and send SMS if late
-                    if (!is_null($student->parent_name) && !is_null($student->parent_number)) {
-                        $basic = new \Vonage\Client\Credentials\Basic("9af65d3f", "4JRcdZ9H1gN9GcFg");
-                        $client = new \Vonage\Client($basic);
-
-                        $client->sms()->send(
-                            new \Vonage\SMS\Message\SMS(
-                                "+" . $student->parent_number,
-                                'AMS',
-                                'Hi Parent, Your child, ' . $student->full_name . ', has been late for their class today. Please remind them to log in earlier. Thank you!'
-                            )
-                        );
-                    }
-                }
             }
 
             // Check if the student has already logged in today for this schedule
@@ -151,6 +132,25 @@ class InstructorController extends Controller
                     ],
                 ], 409); // 409 Conflict status code
             } else {
+                 // Check if time_in is later than start_time
+                 if ($late_minutes > 15) {
+                    $late = true;
+
+                    // Check if there are guardian details and send SMS if late
+                    if (!is_null($student->parent_name) && !is_null($student->parent_number)) {
+                        $basic = new \Vonage\Client\Credentials\Basic("9af65d3f", "4JRcdZ9H1gN9GcFg");
+                        $client = new \Vonage\Client($basic);
+
+                        $client->sms()->send(
+                            new \Vonage\SMS\Message\SMS(
+                                "+" . $student->parent_number,
+                                'AMS',
+                                'Hi Parent, Your child, ' . $student->full_name . ', has been late for their class today. Please remind them to log in earlier. Thank you!'
+                            )
+                        );
+                    }
+                }
+
                 $attendance = Attendance::create(
                     [
                         'student_id' => $student->id,
