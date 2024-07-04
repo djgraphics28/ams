@@ -28,7 +28,7 @@ class LateSmsNotificationJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $basic = new \Vonage\Client\Credentials\Basic("9af65d3f", "4JRcdZ9H1gN9GcFg");
+        $basic = new \Vonage\Client\Credentials\Basic("9af65d3f", "Ny92OinIz6PjfOnc");
         $client = new \Vonage\Client($basic);
 
         $client->sms()->send(
